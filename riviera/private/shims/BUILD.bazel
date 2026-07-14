@@ -1,0 +1,20 @@
+"""Default `riviera_toolchain` shim binaries.
+
+Each shim is a minimal `exec <tool> "$@"` for environments with Riviera
+on the PATH. Override per-toolchain to hard-code an install prefix,
+source a license env file, etc. They are `sh_binary` targets so the
+toolchain's tool attrs can accept any executable (see `_tool_attr`).
+"""
+
+load("@rules_shell//shell:sh_binary.bzl", "sh_binary")
+load("//riviera/private:tools.bzl", "TOOL_NAMES")
+
+package(default_visibility = ["//visibility:public"])
+
+[
+    sh_binary(
+        name = tool,
+        srcs = ["{}.sh".format(tool)],
+    )
+    for tool in TOOL_NAMES
+]

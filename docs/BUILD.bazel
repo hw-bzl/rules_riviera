@@ -1,0 +1,52 @@
+load("@io_bazel_stardoc//stardoc:stardoc.bzl", "stardoc")
+load("@rules_rust_mdbook//:defs.bzl", "mdbook", "mdbook_server")
+load("@rules_shell//shell:sh_binary.bzl", "sh_binary")
+
+_RULES = [
+    "riviera_library",
+    "riviera_sim_test",
+    "riviera_toolchain",
+]
+
+[
+    stardoc(
+        name = "{}_doc".format(rule),
+        out = "src/{}.md".format(rule),
+        input = "//riviera:{}.bzl".format(rule),
+        table_of_contents_template = "@io_bazel_stardoc//stardoc:templates/markdown_tables/table_of_contents.vm",
+        tags = ["manual"],
+        deps = ["//riviera:bzl_lib"],
+    )
+    for rule in _RULES
+]
+
+mdbook(
+    name = "book",
+    srcs = glob(["src/**/*.md"]) + [":{}_doc".format(rule) for rule in _RULES],
+    book = "book.toml",
+    # Windows builds are typically super slow in CI so they're avoided.
+    target_compatible_with = select({
+        "@platforms//os:windows": ["@platforms//:incompatible"],
+        "//conditions:default": [],
+    }),
+)
+
+alias(
+    name = "docs",
+    actual = ":book",
+    tags = ["manual"],
+)
+
+mdbook_server(
+    name = "server",
+    book = ":book",
+    tags = ["manual"],
+)
+
+sh_binary(
+    name = "publish_book",
+    srcs = ["publish_book.sh"],
+    data = [":book"],
+    env = {"BOOK_DIR": "$(rootpath :book)"},
+    tags = ["manual"],
+)

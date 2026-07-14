@@ -1,0 +1,16 @@
+load("@rules_rust//rust:defs.bzl", "rust_library", "rust_test")
+
+package(default_visibility = ["//tools:__subpackages__"])
+
+rust_library(
+    name = "riviera_common",
+    srcs = ["src/lib.rs"],
+    edition = "2021",
+)
+
+rust_test(
+    name = "riviera_common_test",
+    crate = ":riviera_common",
+    edition = "2021",
+    tags = ["local"],
+)

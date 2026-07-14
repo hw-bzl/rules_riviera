@@ -1,0 +1,71 @@
+###############################################################################
+## Bazel Configuration Flags
+##
+## `.bazelrc` is a Bazel configuration file.
+## https://bazel.build/docs/best-practices#bazelrc-file
+###############################################################################
+
+# https://bazel.build/reference/command-line-reference#flag--enable_platform_specific_config
+common --enable_platform_specific_config
+
+# Declare Riviera's local resource pool so `resources:riviera_license`
+# execution_requirements from riviera_library / riviera_sim_test have
+# something to check out against. Default = 1 (serialize concurrent
+# Riviera actions); users with N licenses bump via
+# `--local_resources=riviera_license=<N>` in user.bazelrc or CI.
+common --local_resources=riviera_license=1
+
+# https://bazel.build/reference/command-line-reference#flag--combined_report
+coverage --combined_report=lcov
+
+# Avoid fully cached builds reporting no coverage and failing CI
+coverage --experimental_fetch_all_coverage_outputs
+
+# https://github.com/bazelbuild/bazel/issues/8195
+build --incompatible_disallow_empty_glob=true
+
+# https://github.com/bazelbuild/bazel/issues/12821
+build --nolegacy_external_runfiles
+
+# https://github.com/bazelbuild/bazel/issues/23043
+build --incompatible_autoload_externally=
+
+###############################################################################
+## Riviera-PRO tag gating
+##
+## Users tag Riviera-touching targets with `requires-riviera`. The
+## default filters here skip them on machines / CI without Riviera.
+## To run them, drop the filter locally (`--build_tag_filters=` +
+## `--test_tag_filters=`) or in your own user.bazelrc — HOW those
+## actions actually reach a Riviera install (docker sandbox, remote
+## execution, host toolchain, ...) is user infrastructure, not
+## something this repo prescribes.
+###############################################################################
+
+build --build_tag_filters=-requires-riviera
+test --test_tag_filters=-requires-riviera
+
+###############################################################################
+## Rust lint / format aspects (rules_rust)
+##
+## Each aspect ships with rules_rust. Consumers opt in per-invocation
+## via `--config=<name>`; the `strict` composite runs both at once.
+###############################################################################
+
+# clippy ---------------------------------------------------------------------
+build:clippy --aspects=@rules_rust//rust:defs.bzl%rust_clippy_aspect
+build:clippy --output_groups=+clippy_checks
+
+# rustfmt --------------------------------------------------------------------
+build:rustfmt --aspects=@rules_rust//rust:defs.bzl%rustfmt_aspect
+build:rustfmt --output_groups=+rustfmt_checks
+
+# Composite — run both at once: `bazel build --config=strict //...`.
+build:strict --config=clippy
+build:strict --config=rustfmt
+
+###############################################################################
+## Custom user flags
+###############################################################################
+
+try-import %workspace%/user.bazelrc

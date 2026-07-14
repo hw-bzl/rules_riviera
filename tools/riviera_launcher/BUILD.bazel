@@ -1,0 +1,22 @@
+load("@rules_rust//rust:defs.bzl", "rust_binary", "rust_test")
+
+package(default_visibility = ["//visibility:public"])
+
+rust_binary(
+    name = "riviera_launcher",
+    srcs = ["riviera_launcher.rs"],
+    edition = "2021",
+    deps = [
+        "//tools/acdb2lcov",
+        "//tools/riviera_common",
+        "@crates//:clap",
+        "@rules_rust//tools/runfiles",
+    ],
+)
+
+rust_test(
+    name = "riviera_launcher_test",
+    crate = ":riviera_launcher",
+    edition = "2021",
+    tags = ["local"],
+)

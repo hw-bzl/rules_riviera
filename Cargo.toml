@@ -1,0 +1,13 @@
+[package]
+name = "rules_riviera"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+# Dummy manifest for crate_universe; the lib path need not exist.
+[lib]
+path = "rules_riviera.rs"
+
+[dependencies]
+clap = { version = "4.5", features = ["derive"] }
+lcov = "0.8"
