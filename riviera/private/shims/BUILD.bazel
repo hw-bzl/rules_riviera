@@ -1,0 +1,31 @@
+"""Default `riviera_toolchain` shim binaries.
+
+Each shim is a minimal `exec <tool> "$@"` — appropriate when the target
+container / host has Riviera on the PATH. Override per-toolchain to
+hard-code an install prefix, source a license env file, etc.
+
+`vsimsa` is the only tool the rules invoke directly — from
+`riviera_library`'s compile action and from `riviera_sim_test`'s
+launcher. The other eight (`riviera`, `vsim`, `alib`, `alog`, `acom`,
+`asim`, `vmap`, `acdb`) either run inside vsimsa's TCL interpreter or
+aren't reached by any rule here; they're exposed as toolchain attrs so
+consumers can bind / override them for rules of their own.
+
+These are `sh_binary` rather than bare `exports_files` scripts so the
+toolchain's tool attrs need not be `allow_single_file` — that would
+reject any wrapper carrying `data` deps, which is the common shape for
+a real deployment binding.
+"""
+
+load("@rules_shell//shell:sh_binary.bzl", "sh_binary")
+load("//riviera/private:tools.bzl", "TOOL_NAMES")
+
+package(default_visibility = ["//visibility:public"])
+
+[
+    sh_binary(
+        name = tool,
+        srcs = ["{}.sh".format(tool)],
+    )
+    for tool in TOOL_NAMES
+]

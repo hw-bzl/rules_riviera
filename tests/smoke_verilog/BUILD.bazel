@@ -1,0 +1,48 @@
+load("@rules_verilog//verilog:defs.bzl", "verilog_library")
+load("//riviera:riviera_library.bzl", "riviera_library")
+load("//riviera:riviera_sim_test.bzl", "riviera_sim_test")
+
+_RIVIERA_TAGS = ["requires-riviera"]
+
+verilog_library(
+    name = "adder",
+    srcs = ["adder.sv"],
+)
+
+verilog_library(
+    name = "adder_tb",
+    srcs = ["adder_tb.sv"],
+    deps = [":adder"],
+)
+
+riviera_library(
+    name = "adder_lib",
+    tags = _RIVIERA_TAGS,
+    deps = [":adder_tb"],
+)
+
+riviera_sim_test(
+    name = "adder_smoke_test",
+    tags = _RIVIERA_TAGS,
+    top = "adder_lib.adder_tb",
+    deps = [":adder_lib"],
+)
+
+# Same design, reached the other way: the testbench is handed to
+# `riviera_library` as a raw source rather than through a
+# `verilog_library`. Covers the `srcs` attr and its ordering contract —
+# `adder.sv` (via `deps`) must be compiled before `adder_tb.sv`, which
+# instantiates it.
+riviera_library(
+    name = "adder_srcs_lib",
+    srcs = ["adder_tb.sv"],
+    tags = _RIVIERA_TAGS,
+    deps = [":adder"],
+)
+
+riviera_sim_test(
+    name = "adder_srcs_smoke_test",
+    tags = _RIVIERA_TAGS,
+    top = "adder_srcs_lib.adder_tb",
+    deps = [":adder_srcs_lib"],
+)

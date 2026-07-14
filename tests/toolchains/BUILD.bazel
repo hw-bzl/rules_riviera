@@ -1,0 +1,31 @@
+"""In-tree Riviera-PRO toolchain used by this repo's smoke tests.
+
+Registered as `dev_dependency = True` from MODULE.bazel, so downstream
+consumers don't inherit it — they author their own `riviera_toolchain`
+in their own repo (see `examples/simple/` for a reference).
+
+This toolchain relies on Riviera being on PATH inside whatever
+environment the actions run in — locally that's the container image
+`user.bazelrc` points `--experimental_docker_image` at. `vsimsa` is the
+only mandatory attr on `riviera_toolchain`; we bind it to the shipped
+PATH-resolving shim. Every other tool attr defaults to a shim in the
+same package.
+"""
+
+load("//riviera:riviera_toolchain.bzl", "riviera_toolchain")
+
+package(default_visibility = ["//visibility:public"])
+
+riviera_toolchain(
+    name = "riviera_toolchain_def",
+    # requires_network = True when your license server is remote.
+    requires_network = True,
+    version = "2025.04",
+    vsimsa = "//riviera/private/shims:vsimsa",
+)
+
+toolchain(
+    name = "riviera_toolchain",
+    toolchain = ":riviera_toolchain_def",
+    toolchain_type = "//riviera:toolchain_type",
+)

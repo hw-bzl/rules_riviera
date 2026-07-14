@@ -1,0 +1,15 @@
+{
+  "homepage": "https://github.com/hw-bzl/rules_riviera",
+  "maintainers": [
+    {
+        "email": "51766769+UebelAndre@users.noreply.github.com",
+        "github": "UebelAndre",
+        "name": "UebelAndre"
+    }
+  ],
+  "repository": [
+    "github:hw-bzl/rules_riviera"
+  ],
+  "versions": [],
+  "yanked_versions": {}
+}

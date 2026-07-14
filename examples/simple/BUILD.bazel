@@ -1,0 +1,67 @@
+load("@rules_riviera//riviera:riviera_library.bzl", "riviera_library")
+load("@rules_riviera//riviera:riviera_sim_test.bzl", "riviera_sim_test")
+load("@rules_riviera//riviera:riviera_toolchain.bzl", "riviera_toolchain")
+load("@rules_shell//shell:sh_binary.bzl", "sh_binary")
+load("@rules_verilog//verilog:defs.bzl", "verilog_library")
+
+# Every Riviera-touching target is tagged `requires-riviera` so the
+# default `.bazelrc` filter skips them without a Riviera image. The
+# rules_riviera rules DO NOT auto-tag — apply it here explicitly.
+_RIVIERA_TAGS = ["requires-riviera"]
+
+# `vsimsa` is the one tool rules_riviera invokes directly, and so the
+# one attr `riviera_toolchain` requires — everything else defaults to a
+# PATH-resolving shim. Bind it to anything Bazel can `exec`.
+#
+# This example ships the simplest binding there is: a wrapper that
+# resolves vsimsa from PATH. Real deployments swap it for something
+# stronger — a hermetic toolchain vendoring the install into the action
+# graph, or a wrapper that sources a license env file. Either way the
+# wrapper's own `data` deps reach the action: the toolchain carries
+# each tool's runfiles, not just its executable.
+sh_binary(
+    name = "vsimsa",
+    srcs = ["vsimsa.sh"],
+)
+
+riviera_toolchain(
+    name = "riviera_toolchain_def",
+    requires_network = True,  # the license server is reached over the network
+    version = "2025.04",
+    vsimsa = ":vsimsa",
+)
+
+toolchain(
+    name = "riviera_toolchain",
+    toolchain = ":riviera_toolchain_def",
+    toolchain_type = "@rules_riviera//riviera:toolchain_type",
+)
+
+# A trivial adder + testbench, exposed as rules_verilog verilog_library
+# targets and folded into one Riviera library.
+verilog_library(
+    name = "adder",
+    srcs = ["adder.sv"],
+)
+
+verilog_library(
+    name = "adder_tb",
+    srcs = ["adder_tb.sv"],
+    deps = [":adder"],
+)
+
+riviera_library(
+    name = "adder_lib",
+    tags = _RIVIERA_TAGS,
+    deps = [":adder_tb"],
+)
+
+riviera_sim_test(
+    name = "adder_test",
+    tags = _RIVIERA_TAGS,
+    top = "adder_lib.adder_tb",
+    deps = [":adder_lib"],
+)
+# Run `bazel coverage //:adder_test` to exercise the coverage path
+# (produces coverage.txt + coverage_html/ in test.outputs.zip and an
+# lcov entry in the combined report).

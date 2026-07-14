@@ -1,0 +1,18 @@
+"""Downstream example — shows what a consumer's MODULE.bazel looks like."""
+
+module(
+    name = "rules_riviera_example",
+    version = "0.0.0",
+)
+
+bazel_dep(name = "rules_riviera", version = "0.1.0")
+bazel_dep(name = "rules_shell", version = "0.7.1")
+bazel_dep(name = "rules_verilog", version = "1.4.2")
+
+local_path_override(
+    module_name = "rules_riviera",
+    path = "../..",
+)
+
+# Register the toolchain we author in-tree.
+register_toolchains("//:riviera_toolchain")

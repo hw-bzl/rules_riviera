@@ -1,0 +1,33 @@
+load("@rules_verilog//verilog:defs.bzl", "verilog_library")
+load("@rules_vhdl//vhdl:defs.bzl", "vhdl_library")
+load("//riviera:riviera_library.bzl", "riviera_library")
+load("//riviera:riviera_sim_test.bzl", "riviera_sim_test")
+
+_RIVIERA_TAGS = ["requires-riviera"]
+
+verilog_library(
+    name = "mux2",
+    srcs = ["mux2.sv"],
+)
+
+# VHDL testbench that instantiates the Verilog component; declared via
+# cross-language `verilog_deps` on the vhdl_library so `riviera_library`
+# picks up both when it walks the DAG.
+vhdl_library(
+    name = "mux2_tb",
+    srcs = ["mux2_tb.vhd"],
+    verilog_deps = [":mux2"],
+)
+
+riviera_library(
+    name = "mux2_lib",
+    tags = _RIVIERA_TAGS,
+    deps = [":mux2_tb"],
+)
+
+riviera_sim_test(
+    name = "mux2_smoke_test",
+    tags = _RIVIERA_TAGS,
+    top = "mux2_lib.mux2_tb",
+    deps = [":mux2_lib"],
+)

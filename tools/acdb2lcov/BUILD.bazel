@@ -1,0 +1,33 @@
+load("@rules_rust//rust:defs.bzl", "rust_binary", "rust_library", "rust_test")
+
+package(default_visibility = ["//visibility:public"])
+
+rust_library(
+    name = "acdb2lcov",
+    srcs = ["src/lib.rs"],
+    crate_name = "acdb2lcov",
+    edition = "2021",
+    deps = ["@crates//:lcov"],
+)
+
+rust_binary(
+    name = "acdb2lcov_cli",
+    srcs = ["src/main.rs"],
+    edition = "2021",
+    deps = [
+        ":acdb2lcov",
+        "@crates//:clap",
+    ],
+)
+
+alias(
+    name = "cli",
+    actual = ":acdb2lcov_cli",
+)
+
+rust_test(
+    name = "acdb2lcov_test",
+    crate = ":acdb2lcov",
+    edition = "2021",
+    tags = ["local"],
+)

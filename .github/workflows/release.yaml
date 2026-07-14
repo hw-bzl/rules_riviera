@@ -1,0 +1,79 @@
+# ---
+# name: Release
+# on:
+#   workflow_dispatch:
+#   pull_request:
+#     branches:
+#       - main
+#     paths:
+#       # Run the release workflow on PRs that touch its scaffolding so
+#       # changes get a dry-run before they land on `main`.
+#       - version.bzl
+#       - .github/workflows/release.yaml
+#       - .github/workflows/release_prep.sh
+#   push:
+#     branches:
+#       - main
+#     paths:
+#       # Only fire a real release when version.bzl is bumped.
+#       - version.bzl
+
+# defaults:
+#   run:
+#     shell: bash
+
+# env:
+#   BAZEL_STARTUP_FLAGS: --bazelrc=${{ github.workspace }}/.github/github.bazelrc
+
+# jobs:
+#   validation:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - uses: actions/checkout@v4
+#       - name: Ensure release does not already exist
+#         if: startsWith(github.ref, 'refs/heads/main')
+#         run: |
+#           git fetch origin &> /dev/null
+#           version="$(grep 'VERSION =' ${{ github.workspace }}/version.bzl | sed 's/VERSION = "//' | sed 's/"//')"
+#           if [[ -n "$(git tag -l ${version})" ]]; then
+#             echo "A release '${version}' already exists." >&2
+#             exit 1
+#           else
+#             echo "Tag '${version}' will be created"
+#           fi
+
+#   tag:
+#     if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && startsWith(github.ref, 'refs/heads/main')) }}
+#     needs: validation
+#     runs-on: ubuntu-latest
+#     permissions:
+#       contents: write
+#     outputs:
+#       tag: ${{ steps.create_tag.outputs.tag }}
+#     steps:
+#       - uses: actions/checkout@v4
+#         with:
+#           fetch-depth: 0
+#       - name: Create and push tag
+#         id: create_tag
+#         run: |
+#           set -euo pipefail
+#           version="$(grep 'VERSION =' ${{ github.workspace }}/version.bzl | sed 's/VERSION = "//' | sed 's/"//')"
+#           git config user.name "github-actions[bot]"
+#           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+#           git tag -a "${version}" -m "rules_riviera ${version}" "${{ github.sha }}"
+#           git push origin "${version}"
+#           echo "tag=${version}" >> $GITHUB_OUTPUT
+
+#   release:
+#     needs: tag
+#     permissions:
+#       contents: write
+#       id-token: write
+#       attestations: write
+#     uses: bazel-contrib/.github/.github/workflows/release_ruleset.yaml@v7.6.0
+#     with:
+#       bazel_test_command: "bazel info release"
+#       release_files: rules_riviera-*.tar.gz
+#       prerelease: false
+#       tag_name: ${{ needs.tag.outputs.tag }}

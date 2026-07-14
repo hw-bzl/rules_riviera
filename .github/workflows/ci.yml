@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+env:
+  BAZEL_STARTUP_FLAGS: --bazelrc=${{ github.workspace }}/.github/github.bazelrc
+
+jobs:
+  test:
+    name: ${{ matrix.os }} / Bazel ${{ matrix.bazel-version }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        bazel-version: ["7.*", "8.*", "9.*"]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Bazel
+        uses: bazel-contrib/setup-bazel@0.14.0
+        with:
+          bazelisk-cache: true
+          repository-cache: true
+          disk-cache: ${{ github.workflow }}-${{ matrix.os }}-${{ matrix.bazel-version }}
+
+      # GitHub runners don't have Riviera-PRO. Tests tagged
+      # `requires_riviera` are excluded by the default filter in
+      # `.bazelrc`; the remaining //tools/... unit tests run without an
+      # install.
+      # The startup flags are interpolated by GitHub, not by the shell:
+      # `windows-latest` defaults to PowerShell, where `${VAR}` is not
+      # expansion syntax and the `--bazelrc` would be silently dropped.
+      - name: Build and test
+        env:
+          USE_BAZEL_VERSION: ${{ matrix.bazel-version }}
+        run: bazel ${{ env.BAZEL_STARTUP_FLAGS }} test //...
+
+      - name: Build example module
+        env:
+          USE_BAZEL_VERSION: ${{ matrix.bazel-version }}
+        working-directory: examples/simple
+        run: bazel ${{ env.BAZEL_STARTUP_FLAGS }} build //...

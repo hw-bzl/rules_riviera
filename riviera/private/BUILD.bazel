@@ -1,0 +1,23 @@
+load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
+
+package(default_visibility = ["//visibility:public"])
+
+exports_files([
+    "providers.bzl",
+    "resource_sets.bzl",
+    "riviera_library.bzl",
+    "riviera_sim_test.bzl",
+    "riviera_toolchain.bzl",
+    "utils.bzl",
+])
+
+bzl_library(
+    name = "bzl_lib",
+    srcs = glob(["*.bzl"]),
+    visibility = ["//riviera:__pkg__"],
+    deps = [
+        "@bazel_skylib//lib:collections",
+        "@rules_verilog//verilog:defs_bzl",
+        "@rules_vhdl//vhdl:defs_bzl",
+    ],
+)

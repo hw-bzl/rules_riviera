@@ -1,0 +1,29 @@
+load("@rules_vhdl//vhdl:defs.bzl", "vhdl_library")
+load("//riviera:riviera_library.bzl", "riviera_library")
+load("//riviera:riviera_sim_test.bzl", "riviera_sim_test")
+
+_RIVIERA_TAGS = ["requires-riviera"]
+
+vhdl_library(
+    name = "counter",
+    srcs = ["counter.vhd"],
+)
+
+vhdl_library(
+    name = "counter_tb",
+    srcs = ["counter_tb.vhd"],
+    deps = [":counter"],
+)
+
+riviera_library(
+    name = "counter_lib",
+    tags = _RIVIERA_TAGS,
+    deps = [":counter_tb"],
+)
+
+riviera_sim_test(
+    name = "counter_smoke_test",
+    tags = _RIVIERA_TAGS,
+    top = "counter_lib.counter_tb",
+    deps = [":counter_lib"],
+)

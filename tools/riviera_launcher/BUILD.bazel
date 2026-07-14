@@ -1,0 +1,15 @@
+load("@rules_rust//rust:defs.bzl", "rust_binary")
+
+package(default_visibility = ["//visibility:public"])
+
+rust_binary(
+    name = "riviera_launcher",
+    srcs = ["riviera_launcher.rs"],
+    edition = "2021",
+    deps = [
+        "//tools/acdb2lcov",
+        "//tools/riviera_common",
+        "@crates//:clap",
+        "@rules_rust//tools/runfiles",
+    ],
+)

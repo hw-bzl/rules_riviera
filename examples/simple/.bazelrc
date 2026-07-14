@@ -1,0 +1,4 @@
+# Reuse the same defaults as the parent repo — most importantly the
+# `requires-riviera` build/test tag filter so `bazel build //...`
+# succeeds without a Riviera image.
+import %workspace%/../../.bazelrc
