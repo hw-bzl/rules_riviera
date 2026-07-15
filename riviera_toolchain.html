@@ -180,19 +180,19 @@ named tool.</p>
 boundary, so their attrs are <code>mandatory = True</code>:</p>
 <ul>
 <li><code>vsimsa</code> — every <code>riviera_library</code> compile action and every
-<code>riviera_sim_test</code> launcher call.</li>
-<li><code>acdb</code> — invoked by <code>riviera_sim_test</code>'s launcher during
-<code>bazel coverage</code> post-processing.</li>
+<code>riviera_sim_test</code> launcher call. Coverage report generation
+(<code>acdb report -text/-html</code>) also runs as TCL inside the same
+<code>vsimsa</code> invocation.</li>
 </ul>
-<p><strong>Discoverability tools</strong> — <code>vsim</code>, <code>alib</code>, <code>alog</code>, <code>acom</code>, <code>asim</code>,
-<code>vmap</code> — run inside vsimsa's TCL interpreter today and never cross the
-Bazel boundary. Exposed here so future rules or downstream consumers
-have a place to bind if they ever need a Bazel-visible path to those
-binaries.</p>
+<p><strong>Discoverability tools</strong> — <code>vsim</code>, <code>alib</code>, <code>alog</code>, <code>acom</code>, <code>acdb</code>,
+<code>asim</code>, <code>vmap</code> — run inside vsimsa's TCL interpreter today and never
+cross the Bazel boundary. Exposed here so future rules or downstream
+consumers have a place to bind if they ever need a Bazel-visible path
+to those binaries.</p>
 <p><strong>ATTRIBUTES</strong></p>
 <div class="table-wrapper"><table><thead><tr><th style="text-align: left">Name</th><th style="text-align: left">Description</th><th style="text-align: left">Type</th><th style="text-align: left">Mandatory</th><th style="text-align: left">Default</th></tr></thead><tbody>
 <tr><td style="text-align: left"><a id="riviera_toolchain-name"></a>name</td><td style="text-align: left">A unique name for this target.</td><td style="text-align: left"><a href="https://bazel.build/concepts/labels#target-names">Name</a></td><td style="text-align: left">required</td><td style="text-align: left"></td></tr>
-<tr><td style="text-align: left"><a id="riviera_toolchain-acdb"></a>acdb</td><td style="text-align: left">Executable invoked as <code>acdb</code>. MANDATORY — the rules call this tool directly.</td><td style="text-align: left"><a href="https://bazel.build/concepts/labels">Label</a></td><td style="text-align: left">required</td><td style="text-align: left"></td></tr>
+<tr><td style="text-align: left"><a id="riviera_toolchain-acdb"></a>acdb</td><td style="text-align: left">Executable invoked as <code>acdb</code>. Optional — currently runs inside vsimsa's TCL interpreter and doesn't cross the Bazel action boundary. Bind if a future rule needs a Bazel-visible path.</td><td style="text-align: left"><a href="https://bazel.build/concepts/labels">Label</a></td><td style="text-align: left">optional</td><td style="text-align: left"><code>"@rules_riviera//riviera/private/shims:acdb.sh"</code></td></tr>
 <tr><td style="text-align: left"><a id="riviera_toolchain-acom"></a>acom</td><td style="text-align: left">Executable invoked as <code>acom</code>. Optional — currently runs inside vsimsa's TCL interpreter and doesn't cross the Bazel action boundary. Bind if a future rule needs a Bazel-visible path.</td><td style="text-align: left"><a href="https://bazel.build/concepts/labels">Label</a></td><td style="text-align: left">optional</td><td style="text-align: left"><code>"@rules_riviera//riviera/private/shims:acom.sh"</code></td></tr>
 <tr><td style="text-align: left"><a id="riviera_toolchain-alib"></a>alib</td><td style="text-align: left">Executable invoked as <code>alib</code>. Optional — currently runs inside vsimsa's TCL interpreter and doesn't cross the Bazel action boundary. Bind if a future rule needs a Bazel-visible path.</td><td style="text-align: left"><a href="https://bazel.build/concepts/labels">Label</a></td><td style="text-align: left">optional</td><td style="text-align: left"><code>"@rules_riviera//riviera/private/shims:alib.sh"</code></td></tr>
 <tr><td style="text-align: left"><a id="riviera_toolchain-alog"></a>alog</td><td style="text-align: left">Executable invoked as <code>alog</code>. Optional — currently runs inside vsimsa's TCL interpreter and doesn't cross the Bazel action boundary. Bind if a future rule needs a Bazel-visible path.</td><td style="text-align: left"><a href="https://bazel.build/concepts/labels">Label</a></td><td style="text-align: left">optional</td><td style="text-align: left"><code>"@rules_riviera//riviera/private/shims:alog.sh"</code></td></tr>

@@ -156,35 +156,26 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="acdb2lcov"><a class="header" href="#acdb2lcov">acdb2lcov</a></h1>
-<p>A pure-Python tool that converts Aldec's <code>acdb report -xml</code> output to lcov <code>.info</code> format. Usable independently of the Bazel rules — the same code powers <code>riviera_sim_test</code>'s coverage post-processing.</p>
+<p>A small Rust tool that converts Aldec's <code>acdb report -txt</code> output to lcov <code>.info</code> format. Same code powers <code>riviera_sim_test</code>'s coverage post-processing.</p>
 <h2 id="where-it-lives"><a class="header" href="#where-it-lives">Where it lives</a></h2>
 <ul>
-<li><strong>Binary</strong>: <code>//tools/acdb2lcov:acdb2lcov</code> — a <code>py_binary</code> (from <code>@rules_venv//python:py_binary.bzl</code>) with the CLI entrypoint. <code>py_binary</code> also exposes the module for direct import by any downstream <code>py_binary</code> / <code>py_test</code> / <code>py_library</code> that depends on it. Mypy walks the sources directly via the aspect, so downstream consumers get inline type-hint checking without extra opt-in.</li>
+<li><strong>Binary</strong>: <code>//tools/acdb2lcov:acdb2lcov_cli</code> — a <code>rust_binary</code> CLI wrapper around the <code>acdb2lcov</code> library.</li>
+<li><strong>Library</strong>: <code>//tools/acdb2lcov:acdb2lcov</code> — the parser + emitter, exposed as a <code>rust_library</code> for anyone who wants to embed it.</li>
+<li><strong>Tests</strong>: <code>//tools/acdb2lcov:acdb2lcov_test</code> — a <code>rust_test</code> over the library, runnable without a Riviera install.</li>
 </ul>
-<h2 id="python-usage"><a class="header" href="#python-usage">Python usage</a></h2>
-<pre><code class="language-python">from acdb2lcov import parse_acdb_xml, emit_lcov
-
-xml = open("coverage_report.xml").read()
-report = parse_acdb_xml(xml)
-open("coverage.info", "w").write(emit_lcov(report.files))
-</code></pre>
-<p><code>to_json</code> / <code>from_json</code> handle serde-style round-trips through <code>dataclasses.asdict</code> + <code>json.dumps</code> — handy for persisting coverage across pipeline stages without re-parsing the XML.</p>
 <h2 id="cli-usage"><a class="header" href="#cli-usage">CLI usage</a></h2>
 <pre><code>bazel run @rules_riviera//tools/acdb2lcov:acdb2lcov -- \
-    --input coverage_report.xml --output coverage.info
+    --input coverage.txt --output coverage.info
 </code></pre>
 <p>Both flags take filesystem paths.</p>
 <h2 id="format-notes"><a class="header" href="#format-notes">Format notes</a></h2>
-<p>Riviera exposes coverage as <code>acdb report -xml &lt;acdb&gt; -o &lt;out.xml&gt;</code>. The XML schema Aldec ships isn't publicly documented; <code>parse_acdb_xml</code> walks a best-effort mapping:</p>
-<pre><code class="language-xml">&lt;coverage&gt;
-    &lt;file path="/abs/path/to/foo.sv"&gt;
-        &lt;statement line="10" hits="5"/&gt;
-        &lt;branch line="11" block="0" branch="0" hits="0"/&gt;
-    &lt;/file&gt;
-&lt;/coverage&gt;
-</code></pre>
-<p>If a Riviera release changes the element / attribute names, adjust <code>_iter_file_coverage</code> in <a href="https://github.com/hw-bzl/rules_riviera/blob/main/tools/acdb2lcov/acdb2lcov.py">tools/acdb2lcov/acdb2lcov.py</a> — every parser change stays local to that function.</p>
-<p>Coverage types beyond <code>&lt;statement&gt;</code> and <code>&lt;branch&gt;</code> (Covergroup, Expression, Condition, FSM, Toggle, Assertion, Path) are silently skipped — they're not representable in lcov and the launcher's flow doesn't ask acdb to emit them.</p>
+<p>The launcher runs <code>acdb report -txt -i coverage.acdb -o coverage.txt</code> inside vsimsa after the sim ends, producing a human-readable table report. <code>acdb2lcov</code> walks that table:</p>
+<ul>
+<li><strong>Statement Coverage</strong> tables carry <code>| &lt;line&gt; | &lt;hits&gt; | ... |</code> rows keyed by a <code>| Line | Hits | Source: /path/to/foo.sv |</code> header. Rows with an empty <code>hits</code> cell are treated as non-coverable and skipped so they don't count as missed lines.</li>
+<li><strong>Branch Coverage</strong> tables carry <code>IF branch#&lt;line&gt;#&lt;idx&gt;#</code> parent rows followed by one arm-name row per branch arm; each arm becomes a <code>BRDA</code> entry.</li>
+</ul>
+<p>Source paths in the report are absolute (<code>/execroot/&lt;workspace&gt;/bazel-out/&lt;config&gt;/bin/&lt;pkg&gt;/&lt;pkg&gt;/&lt;workspace-relative&gt;</code>); the parser normalizes them back to a workspace-relative form so Bazel's lcov merger matches them against the baseline report.</p>
+<p>Coverage types beyond Statement and Branch (Covergroup, Expression, Condition, FSM, Toggle, Assertion, Path) are silently skipped — they're not representable in lcov and <code>acdb report -txt</code> doesn't include them by default.</p>
 
                     </main>
 

@@ -156,20 +156,17 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="rules"><a class="header" href="#rules">Rules</a></h1>
-<p>Four public rules, three providers. Every rule is single-purpose and speaks one provider — no rule holds "am I in cocotb mode?" state.</p>
+<p>Three public rules, two providers.</p>
 <div class="table-wrapper"><table><thead><tr><th>Rule</th><th>Produces</th><th>Consumes</th></tr></thead><tbody>
 <tr><td><code>riviera_library</code></td><td><code>RivieraLibraryInfo</code></td><td><code>VerilogInfo</code> / <code>VhdlInfo</code></td></tr>
-<tr><td><code>riviera_hdl_testbench</code></td><td><code>RivieraTestbenchInfo</code></td><td><code>RivieraLibraryInfo</code></td></tr>
-<tr><td><code>riviera_cocotb_testbench</code></td><td><code>RivieraTestbenchInfo</code> + <code>PyInfo</code></td><td><code>RivieraLibraryInfo</code>, <code>PyInfo</code></td></tr>
-<tr><td><code>riviera_sim_test</code></td><td>(a bazel test)</td><td><code>RivieraTestbenchInfo</code></td></tr>
-<tr><td><code>riviera_toolchain</code></td><td><code>RivieraToolchainInfo</code></td><td>8 tool shims</td></tr>
+<tr><td><code>riviera_sim_test</code></td><td>(a bazel test)</td><td><code>RivieraLibraryInfo</code></td></tr>
+<tr><td><code>riviera_toolchain</code></td><td><code>RivieraToolchainInfo</code></td><td>8 tool executables</td></tr>
 </tbody></table>
 </div>
-<p>Anything that produces <code>RivieraLibraryInfo</code> (pre-built vendor library, imported UVM archive, etc.) is a drop-in for the testbench rules' <code>library</code> attr; anything that produces <code>RivieraTestbenchInfo</code> is a drop-in for <code>riviera_sim_test.testbench</code>. No sim-rule surgery required to accommodate new sources of either provider.</p>
+<p>Anything that produces <code>RivieraLibraryInfo</code> (a pre-built vendor library, an imported UVM archive, etc.) is a drop-in for <code>riviera_sim_test.deps</code> — no sim-rule surgery required.</p>
 <ul>
 <li><a href="./riviera_library.html"><code>riviera_library</code></a> — compile a <code>verilog_library</code> / <code>vhdl_library</code> DAG into one Riviera library.</li>
-<li><a href="./riviera_testbench.html"><code>riviera_testbench</code></a> — two rules: <code>riviera_hdl_testbench</code> (SV/VHDL top drives DUT) and <code>riviera_cocotb_testbench</code> (Python drives DUT via VPI). Both feed <code>riviera_sim_test</code>.</li>
-<li><a href="./riviera_sim_test.html"><code>riviera_sim_test</code></a> — elaborate + simulate a testbench under <code>vsimsa</code>. Automatic coverage under <code>bazel coverage</code>.</li>
+<li><a href="./riviera_sim_test.html"><code>riviera_sim_test</code></a> — <code>vmap</code> one or more <code>riviera_library</code> deps and elaborate + simulate a <code>top</code> under <code>vsimsa</code>. Automatic coverage under <code>bazel coverage</code>.</li>
 <li><a href="./riviera_toolchain.html"><code>riviera_toolchain</code></a> — bind Riviera executables to the toolchain type consumed by the rules above.</li>
 </ul>
 

@@ -166,7 +166,7 @@
 <pre>
 load("@rules_riviera//riviera:riviera_library.bzl", "riviera_library")
 
-riviera_library(<a href="#riviera_library-name">name</a>, <a href="#riviera_library-deps">deps</a>, <a href="#riviera_library-srcs">srcs</a>, <a href="#riviera_library-compile_opts">compile_opts</a>, <a href="#riviera_library-defines">defines</a>, <a href="#riviera_library-exec_requirements">exec_requirements</a>, <a href="#riviera_library-jobs">jobs</a>, <a href="#riviera_library-library_name">library_name</a>)
+riviera_library(<a href="#riviera_library-name">name</a>, <a href="#riviera_library-deps">deps</a>, <a href="#riviera_library-acom_opts">acom_opts</a>, <a href="#riviera_library-alog_opts">alog_opts</a>, <a href="#riviera_library-exec_requirements">exec_requirements</a>, <a href="#riviera_library-jobs">jobs</a>, <a href="#riviera_library-library_name">library_name</a>)
 </pre>
 <p>Compile the full transitive HDL DAG into ONE self-contained Aldec Riviera library.</p>
 <p><code>deps</code> takes <code>verilog_library</code> / <code>vhdl_library</code> targets (anything
@@ -174,9 +174,8 @@ providing <code>VerilogInfo</code> or <code>VhdlInfo</code>). The rule walks the
 reachable source graph — own srcs + hdrs, transitive <code>.deps</code>, and
 cross-language <code>.vhdl_deps</code> / <code>.verilog_deps</code> — and compiles it in
 one <code>alib</code>/<code>alog</code>/<code>acom</code> invocation via a generated <code>vsimsa</code> <code>.do</code>
-script. Output is one TreeArtifact directory; downstream consumers
-(testbench rules, <code>riviera_sim_test</code>) <code>vmap</code> it by the logical library
-name.</p>
+script. Output is one TreeArtifact directory; <code>riviera_sim_test</code>
+<code>vmap</code>s it by the logical library name.</p>
 <p><code>srcs</code> is an optional escape hatch for HDL files that only make sense
 inside this Riviera library (a Riviera-specific stub, a compile-time
 wrapper) and don't warrant their own HDL-library target.</p>
@@ -190,9 +189,8 @@ targets together via other consumers, not by cross-linking <code>riviera_library
 <div class="table-wrapper"><table><thead><tr><th style="text-align: left">Name</th><th style="text-align: left">Description</th><th style="text-align: left">Type</th><th style="text-align: left">Mandatory</th><th style="text-align: left">Default</th></tr></thead><tbody>
 <tr><td style="text-align: left"><a id="riviera_library-name"></a>name</td><td style="text-align: left">A unique name for this target.</td><td style="text-align: left"><a href="https://bazel.build/concepts/labels#target-names">Name</a></td><td style="text-align: left">required</td><td style="text-align: left"></td></tr>
 <tr><td style="text-align: left"><a id="riviera_library-deps"></a>deps</td><td style="text-align: left">verilog_library / vhdl_library targets. The full reachable source graph (own srcs+hdrs, transitive deps, cross-language deps) is compiled into this Riviera library.</td><td style="text-align: left"><a href="https://bazel.build/concepts/labels">List of labels</a></td><td style="text-align: left">optional</td><td style="text-align: left"><code>[]</code></td></tr>
-<tr><td style="text-align: left"><a id="riviera_library-srcs"></a>srcs</td><td style="text-align: left">Optional raw HDL files (<code>.v</code>/<code>.sv</code>/<code>.vh</code>/<code>.svh</code>/<code>.vhd</code>/<code>.vhdl</code>) unique to this Riviera library. Most callers leave this empty and put their sources in a verilog_library/vhdl_library referenced via <code>deps</code>.</td><td style="text-align: left"><a href="https://bazel.build/concepts/labels">List of labels</a></td><td style="text-align: left">optional</td><td style="text-align: left"><code>[]</code></td></tr>
-<tr><td style="text-align: left"><a id="riviera_library-compile_opts"></a>compile_opts</td><td style="text-align: left">Extra flags forwarded to alog/acom.</td><td style="text-align: left">List of strings</td><td style="text-align: left">optional</td><td style="text-align: left"><code>[]</code></td></tr>
-<tr><td style="text-align: left"><a id="riviera_library-defines"></a>defines</td><td style="text-align: left"><code>+define+FOO=bar</code> macros passed to alog (Verilog only).</td><td style="text-align: left">List of strings</td><td style="text-align: left">optional</td><td style="text-align: left"><code>[]</code></td></tr>
+<tr><td style="text-align: left"><a id="riviera_library-acom_opts"></a>acom_opts</td><td style="text-align: left">Extra flags forwarded to VHDL compilation (<code>acom</code>).</td><td style="text-align: left">List of strings</td><td style="text-align: left">optional</td><td style="text-align: left"><code>[]</code></td></tr>
+<tr><td style="text-align: left"><a id="riviera_library-alog_opts"></a>alog_opts</td><td style="text-align: left">Extra flags forwarded to Verilog compilation (<code>alog</code>)</td><td style="text-align: left">List of strings</td><td style="text-align: left">optional</td><td style="text-align: left"><code>[]</code></td></tr>
 <tr><td style="text-align: left"><a id="riviera_library-exec_requirements"></a>exec_requirements</td><td style="text-align: left">Extra execution_requirements merged on top of the defaults (which are <code>resources:riviera_license=1</code> and — when the toolchain has <code>requires_network=True</code> — <code>requires-network</code>). Use to override the license slot count, force <code>no-remote-exec</code>, tag a specific resource pool, etc.</td><td style="text-align: left"><a href="https://bazel.build/rules/lib/dict">Dictionary: String -&gt; String</a></td><td style="text-align: left">optional</td><td style="text-align: left"><code>{}</code></td></tr>
 <tr><td style="text-align: left"><a id="riviera_library-jobs"></a>jobs</td><td style="text-align: left">CPU slots to request from Bazel's local scheduler. <code>-1</code> (default) inherits the toolchain's <code>jobs</code> field; <code>0</code> explicitly means no hint; <code>N &gt; 0</code> maps to <code>resource_set = {'cpu': N}</code>. Only hints the scheduler — pass any Riviera-specific parallel flags (e.g. <code>-j</code>, <code>-mfcu</code>) via <code>compile_opts</code>.</td><td style="text-align: left">Integer</td><td style="text-align: left">optional</td><td style="text-align: left"><code>-1</code></td></tr>
 <tr><td style="text-align: left"><a id="riviera_library-library_name"></a>library_name</td><td style="text-align: left">Logical Riviera library name. Defaults to the target's label name.</td><td style="text-align: left">String</td><td style="text-align: left">optional</td><td style="text-align: left"><code>""</code></td></tr>
@@ -206,7 +204,7 @@ targets together via other consumers, not by cross-linking <code>riviera_library
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next prefetch" href="riviera_testbench.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="riviera_sim_test.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -220,7 +218,7 @@ targets together via other consumers, not by cross-linking <code>riviera_library
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next prefetch" href="riviera_testbench.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="riviera_sim_test.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>

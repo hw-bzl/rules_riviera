@@ -157,12 +157,10 @@
                     <main>
                         <h1 id="rules_riviera"><a class="header" href="#rules_riviera">rules_riviera</a></h1>
 <p>Bazel rules for <a href="https://www.aldec.com/en/products/functional_verification/riviera-pro">Aldec Riviera-PRO</a>, a mixed-language (Verilog / SystemVerilog / VHDL) HDL simulator.</p>
-<p>The public surface is four rules over three providers:</p>
+<p>The public surface is three rules over two providers:</p>
 <ul>
 <li><strong><code>riviera_library</code></strong> — compile a <code>verilog_library</code> / <code>vhdl_library</code> DAG into ONE self-contained Riviera library.</li>
-<li><strong><code>riviera_hdl_testbench</code></strong> — package an HDL testbench top for elaboration.</li>
-<li><strong><code>riviera_cocotb_testbench</code></strong> — package a Python cocotb testbench (auto-locates <code>libcocotbvpi_aldec.so</code>, wires the VPI).</li>
-<li><strong><code>riviera_sim_test</code></strong> — elaborate + simulate a testbench under <code>vsimsa</code>. Cocotb-agnostic — only reads <code>RivieraTestbenchInfo</code>.</li>
+<li><strong><code>riviera_sim_test</code></strong> — <code>vmap</code> one or more <code>riviera_library</code> deps, elaborate a <code>top</code>, and simulate under <code>vsimsa</code> as a Bazel test.</li>
 <li><strong><code>riviera_toolchain</code></strong> — bind the eight Riviera executables (<code>vsimsa</code>/<code>vsim</code>/<code>alib</code>/<code>alog</code>/<code>acom</code>/<code>asim</code>/<code>vmap</code>/<code>acdb</code>) to the toolchain type the rules resolve.</li>
 </ul>
 <p>Everything else — coverage collection under <code>bazel coverage</code>, <code>//tools/acdb2lcov</code> for ACDB -&gt; lcov conversion — is designed around those rules.</p>

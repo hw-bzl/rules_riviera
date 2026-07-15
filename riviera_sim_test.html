@@ -166,49 +166,55 @@
 <pre>
 load("@rules_riviera//riviera:riviera_sim_test.bzl", "riviera_sim_test")
 
-riviera_sim_test(<a href="#riviera_sim_test-name">name</a>, <a href="#riviera_sim_test-data">data</a>, <a href="#riviera_sim_test-env">env</a>, <a href="#riviera_sim_test-exec_requirements">exec_requirements</a>, <a href="#riviera_sim_test-generics">generics</a>, <a href="#riviera_sim_test-jobs">jobs</a>, <a href="#riviera_sim_test-sim_opts">sim_opts</a>, <a href="#riviera_sim_test-testbench">testbench</a>)
+riviera_sim_test(<a href="#riviera_sim_test-name">name</a>, <a href="#riviera_sim_test-deps">deps</a>, <a href="#riviera_sim_test-data">data</a>, <a href="#riviera_sim_test-asim_opts">asim_opts</a>, <a href="#riviera_sim_test-env">env</a>, <a href="#riviera_sim_test-exec_requirements">exec_requirements</a>, <a href="#riviera_sim_test-generics">generics</a>, <a href="#riviera_sim_test-jobs">jobs</a>,
+                 <a href="#riviera_sim_test-post_processor">post_processor</a>, <a href="#riviera_sim_test-top">top</a>)
 </pre>
-<p>Elaborate + simulate a Riviera testbench under <code>vsimsa</code> as a Bazel test.</p>
-<p>Takes exactly one <code>testbench</code> — either an <code>riviera_hdl_testbench</code> or an
-<code>riviera_cocotb_testbench</code>, both of which provide <code>RivieraTestbenchInfo</code>.
-The rule is oblivious to the HDL-vs-cocotb distinction: everything
-cocotb-specific (the <code>-pli</code> VPI path, <code>MODULE</code> / <code>TOPLEVEL</code> /
-<code>COCOTB_TOPLEVEL_LANG</code> env, merged Python <code>PyInfo</code>) is packaged inside
-the testbench provider and forwarded verbatim.</p>
+<p>Elaborate + simulate a Riviera library under <code>vsimsa</code> as a Bazel test.</p>
+<p>Takes one or more <code>deps</code> — each a <code>riviera_library</code> — and a fully-qualified
+<code>top</code> (e.g. <code>"my_lib.my_tb"</code>) that <code>asim</code> elaborates. Every dep's library
+directory is <code>vmap -link</code>ed before elaboration, so cross-library
+instantiation works out of the box.</p>
+<p><code>asim_opts</code> supports Bazel's <code>$(location ...)</code> / <code>$(rlocationpath ...)</code>
+templates against targets in <code>data</code>. Values with a template are
+runfiles-resolved to absolute paths at test time — useful for wiring
+<code>-f &lt;file&gt;</code>, <code>-pli &lt;shared_lib&gt;</code>, or any other flag whose value is a
+Bazel-tracked runfile. Literal strings pass through verbatim.</p>
 <p>Rule ↔ launcher hand-off:</p>
 <ol>
 <li>The rule builds a <code>ctx.actions.args()</code> bundle describing everything
-the launcher needs (tool rlocation keys, library name, top, generics,
-sim opts, coverage flag, cocotb config) and writes it to a multiline
+the launcher needs (tool rlocation keys, per-library rlocs, top,
+generics, asim args, coverage flag) and writes it to a multiline
 param file via <code>ctx.actions.write(content = args)</code>.</li>
 <li>It exposes exactly one env var — <code>RIVIERA_ARGS_FILE_RLOC</code> — whose
 value is the args file's runfiles-library key.</li>
 <li>The launcher (<code>//tools/riviera_launcher</code>) reads the env, resolves
-the args file via <code>runfiles.Rlocation</code>, argparse's it, resolves
-every <code>*_rloc</code> field to an absolute path, constructs the <code>.do</code> at
-runtime, and hands vsimsa the absolute path.</li>
+the args file via the runfiles library, argparse-parses it,
+resolves every <code>*_rloc</code> field to an absolute path, constructs the
+<code>.do</code> at runtime, and hands vsimsa the absolute path.</li>
 </ol>
-<p>Coverage kicks in automatically under <code>bazel coverage</code> via
-<code>ctx.coverage_instrumented()</code>: the launcher adds <code>-coverage sbceam -acdb</code> to the .do, renders html + text into
-<code>$TEST_UNDECLARED_OUTPUTS_DIR</code>, and converts text → lcov via
-<code>//tools/acdb2lcov</code> for <code>$COVERAGE_OUTPUT_FILE</code>.</p>
+<p>Coverage kicks in automatically under <code>bazel coverage</code>: the launcher
+adds <code>-acdb -acdb_cov sbceam</code> to the <code>.do</code>, renders html + text into
+<code>$TEST_UNDECLARED_OUTPUTS_DIR</code>, and converts the text report to lcov
+via the linked-in <code>acdb2lcov</code> for <code>$COVERAGE_OUTPUT_FILE</code>.</p>
 <p><strong>ATTRIBUTES</strong></p>
 <div class="table-wrapper"><table><thead><tr><th style="text-align: left">Name</th><th style="text-align: left">Description</th><th style="text-align: left">Type</th><th style="text-align: left">Mandatory</th><th style="text-align: left">Default</th></tr></thead><tbody>
 <tr><td style="text-align: left"><a id="riviera_sim_test-name"></a>name</td><td style="text-align: left">A unique name for this target.</td><td style="text-align: left"><a href="https://bazel.build/concepts/labels#target-names">Name</a></td><td style="text-align: left">required</td><td style="text-align: left"></td></tr>
-<tr><td style="text-align: left"><a id="riviera_sim_test-data"></a>data</td><td style="text-align: left">Runtime data (memory init files, etc.) staged into runfiles.</td><td style="text-align: left"><a href="https://bazel.build/concepts/labels">List of labels</a></td><td style="text-align: left">optional</td><td style="text-align: left"><code>[]</code></td></tr>
-<tr><td style="text-align: left"><a id="riviera_sim_test-env"></a>env</td><td style="text-align: left">Extra environment variables for the test action. Overrides anything the rule derives automatically (e.g. COCOTB_TOPLEVEL_LANG for a mixed-language design with a VHDL top).</td><td style="text-align: left"><a href="https://bazel.build/rules/lib/dict">Dictionary: String -&gt; String</a></td><td style="text-align: left">optional</td><td style="text-align: left"><code>{}</code></td></tr>
+<tr><td style="text-align: left"><a id="riviera_sim_test-deps"></a>deps</td><td style="text-align: left">One or more <code>riviera_library</code> targets. Every library is <code>vmap -link</code>ed before elaboration.</td><td style="text-align: left"><a href="https://bazel.build/concepts/labels">List of labels</a></td><td style="text-align: left">required</td><td style="text-align: left"></td></tr>
+<tr><td style="text-align: left"><a id="riviera_sim_test-data"></a>data</td><td style="text-align: left">Runtime data (memory init files, custom .f lists, VPI shared libs, etc.) staged into runfiles. Targets referenced from <code>asim_opts</code> templates must appear here.</td><td style="text-align: left"><a href="https://bazel.build/concepts/labels">List of labels</a></td><td style="text-align: left">optional</td><td style="text-align: left"><code>[]</code></td></tr>
+<tr><td style="text-align: left"><a id="riviera_sim_test-asim_opts"></a>asim_opts</td><td style="text-align: left">Extra arguments forwarded to <code>asim</code>. Supports <code>$(location ...)</code> / <code>$(rlocationpath ...)</code> expansion against targets in <code>data</code>; expanded values are runfiles-resolved at test time.</td><td style="text-align: left">List of strings</td><td style="text-align: left">optional</td><td style="text-align: left"><code>[]</code></td></tr>
+<tr><td style="text-align: left"><a id="riviera_sim_test-env"></a>env</td><td style="text-align: left">Extra environment variables for the test action.</td><td style="text-align: left"><a href="https://bazel.build/rules/lib/dict">Dictionary: String -&gt; String</a></td><td style="text-align: left">optional</td><td style="text-align: left"><code>{}</code></td></tr>
 <tr><td style="text-align: left"><a id="riviera_sim_test-exec_requirements"></a>exec_requirements</td><td style="text-align: left">Extra execution_requirements merged on top of the defaults (<code>resources:riviera_license=1</code>, plus <code>requires-network</code> when the toolchain says so). Use to override license slot count, force <code>no-remote-exec</code>, request a named resource pool, etc.</td><td style="text-align: left"><a href="https://bazel.build/rules/lib/dict">Dictionary: String -&gt; String</a></td><td style="text-align: left">optional</td><td style="text-align: left"><code>{}</code></td></tr>
 <tr><td style="text-align: left"><a id="riviera_sim_test-generics"></a>generics</td><td style="text-align: left">Elaboration-time parameters / generics (mapped to <code>-g &lt;name&gt;=&lt;value&gt;</code>).</td><td style="text-align: left"><a href="https://bazel.build/rules/lib/dict">Dictionary: String -&gt; String</a></td><td style="text-align: left">optional</td><td style="text-align: left"><code>{}</code></td></tr>
-<tr><td style="text-align: left"><a id="riviera_sim_test-jobs"></a>jobs</td><td style="text-align: left">CPU slots requested for the test. <code>-1</code> (default) inherits the toolchain's <code>jobs</code> field; <code>0</code> explicitly means no hint; <code>N &gt; 0</code> adds <code>cpu:N</code> to <code>testing.ExecutionInfo.requirements</code>. Only hints the scheduler — pass any Riviera-specific parallel simulator flags (<code>-j</code>, <code>-threads</code>, <code>-mfcu</code>, etc.) through <code>sim_opts</code>.</td><td style="text-align: left">Integer</td><td style="text-align: left">optional</td><td style="text-align: left"><code>-1</code></td></tr>
-<tr><td style="text-align: left"><a id="riviera_sim_test-sim_opts"></a>sim_opts</td><td style="text-align: left">Extra arguments forwarded to <code>asim</code>.</td><td style="text-align: left">List of strings</td><td style="text-align: left">optional</td><td style="text-align: left"><code>[]</code></td></tr>
-<tr><td style="text-align: left"><a id="riviera_sim_test-testbench"></a>testbench</td><td style="text-align: left">A target providing RivieraTestbenchInfo — either a <code>riviera_hdl_testbench</code> or a <code>riviera_cocotb_testbench</code>.</td><td style="text-align: left"><a href="https://bazel.build/concepts/labels">Label</a></td><td style="text-align: left">required</td><td style="text-align: left"></td></tr>
+<tr><td style="text-align: left"><a id="riviera_sim_test-jobs"></a>jobs</td><td style="text-align: left">CPU slots requested for the test. <code>-1</code> (default) inherits the toolchain's <code>jobs</code> field; <code>0</code> explicitly means no hint; <code>N &gt; 0</code> adds <code>cpu:N</code> to <code>testing.ExecutionInfo.requirements</code>. Only hints the scheduler — pass any Riviera-specific parallel simulator flags (<code>-j</code>, <code>-threads</code>, <code>-mfcu</code>, etc.) through <code>asim_opts</code>.</td><td style="text-align: left">Integer</td><td style="text-align: left">optional</td><td style="text-align: left"><code>-1</code></td></tr>
+<tr><td style="text-align: left"><a id="riviera_sim_test-post_processor"></a>post_processor</td><td style="text-align: left">Optional executable invoked after a successful simulation, before the test returns. Runs in <code>$TEST_TMPDIR</code> with the sim's environment (<code>$COVERAGE_OUTPUT_FILE</code>, <code>$TEST_UNDECLARED_OUTPUTS_DIR</code>, plus any <code>env</code> from the rule). A non-zero exit fails the test.</td><td style="text-align: left"><a href="https://bazel.build/concepts/labels">Label</a></td><td style="text-align: left">optional</td><td style="text-align: left"><code>None</code></td></tr>
+<tr><td style="text-align: left"><a id="riviera_sim_test-top"></a>top</td><td style="text-align: left">Fully-qualified HDL top-level unit passed to <code>asim</code>, e.g. <code>"my_lib.my_tb"</code>.</td><td style="text-align: left">String</td><td style="text-align: left">required</td><td style="text-align: left"></td></tr>
 </tbody></table>
 </div>
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="riviera_testbench.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="riviera_library.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
@@ -222,7 +228,7 @@ runtime, and hands vsimsa the absolute path.</li>
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="riviera_testbench.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="riviera_library.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
