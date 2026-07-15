@@ -1,0 +1,259 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>riviera_toolchain - rules_aldec_riviera</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc.js"></script>
+    </head>
+    <body>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">rules_aldec_riviera</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/hw-bzl/rules_aldec_riviera" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <!-- Generated with Stardoc: http://skydoc.bazel.build -->
+<p>Public entry point for <code>riviera_toolchain</code>.</p>
+<h2 id="rules"><a class="header" href="#rules">Rules</a></h2>
+<ul>
+<li><a href="#riviera_toolchain">riviera_toolchain</a></li>
+</ul>
+<p><a id="riviera_toolchain"></a></p>
+<h2 id="riviera_toolchain"><a class="header" href="#riviera_toolchain">riviera_toolchain</a></h2>
+<pre>
+load("@rules_aldec_riviera//riviera:riviera_toolchain.bzl", "riviera_toolchain")
+
+riviera_toolchain(<a href="#riviera_toolchain-name">name</a>, <a href="#riviera_toolchain-acdb">acdb</a>, <a href="#riviera_toolchain-acom">acom</a>, <a href="#riviera_toolchain-alib">alib</a>, <a href="#riviera_toolchain-alog">alog</a>, <a href="#riviera_toolchain-asim">asim</a>, <a href="#riviera_toolchain-env">env</a>, <a href="#riviera_toolchain-jobs">jobs</a>, <a href="#riviera_toolchain-requires_network">requires_network</a>, <a href="#riviera_toolchain-version">version</a>, <a href="#riviera_toolchain-vmap">vmap</a>,
+                  <a href="#riviera_toolchain-vsim">vsim</a>, <a href="#riviera_toolchain-vsimsa">vsimsa</a>)
+</pre>
+<p>Declares an Aldec Riviera-PRO toolchain by binding one executable per Riviera tool.</p>
+<p>Each tool attr takes an executable target that resolves to the
+corresponding Riviera binary. In the ideal case that's a hermetic
+toolchain that vendors the whole install into the Bazel action graph;
+in practice it can be anything Bazel can <code>exec</code> — the toolchain only
+cares that each attr resolves to something that behaves like the
+named tool.</p>
+<p><strong>Load-bearing tools</strong> — invoked directly across the Bazel action
+boundary, so their attrs are <code>mandatory = True</code>:</p>
+<ul>
+<li><code>vsimsa</code> — every <code>riviera_library</code> compile action and every
+<code>riviera_sim_test</code> launcher call.</li>
+<li><code>acdb</code> — invoked by <code>riviera_sim_test</code>'s launcher during
+<code>bazel coverage</code> post-processing.</li>
+</ul>
+<p><strong>Discoverability tools</strong> — <code>vsim</code>, <code>alib</code>, <code>alog</code>, <code>acom</code>, <code>asim</code>,
+<code>vmap</code> — run inside vsimsa's TCL interpreter today and never cross the
+Bazel boundary. Exposed here so future rules or downstream consumers
+have a place to bind if they ever need a Bazel-visible path to those
+binaries.</p>
+<p><strong>ATTRIBUTES</strong></p>
+<div class="table-wrapper"><table><thead><tr><th style="text-align: left">Name</th><th style="text-align: left">Description</th><th style="text-align: left">Type</th><th style="text-align: left">Mandatory</th><th style="text-align: left">Default</th></tr></thead><tbody>
+<tr><td style="text-align: left"><a id="riviera_toolchain-name"></a>name</td><td style="text-align: left">A unique name for this target.</td><td style="text-align: left"><a href="https://bazel.build/concepts/labels#target-names">Name</a></td><td style="text-align: left">required</td><td style="text-align: left"></td></tr>
+<tr><td style="text-align: left"><a id="riviera_toolchain-acdb"></a>acdb</td><td style="text-align: left">Executable invoked as <code>acdb</code>. MANDATORY — the rules call this tool directly.</td><td style="text-align: left"><a href="https://bazel.build/concepts/labels">Label</a></td><td style="text-align: left">required</td><td style="text-align: left"></td></tr>
+<tr><td style="text-align: left"><a id="riviera_toolchain-acom"></a>acom</td><td style="text-align: left">Executable invoked as <code>acom</code>. Optional — currently runs inside vsimsa's TCL interpreter and doesn't cross the Bazel action boundary. Bind if a future rule needs a Bazel-visible path.</td><td style="text-align: left"><a href="https://bazel.build/concepts/labels">Label</a></td><td style="text-align: left">optional</td><td style="text-align: left"><code>"@rules_aldec_riviera//riviera/private/shims:acom.sh"</code></td></tr>
+<tr><td style="text-align: left"><a id="riviera_toolchain-alib"></a>alib</td><td style="text-align: left">Executable invoked as <code>alib</code>. Optional — currently runs inside vsimsa's TCL interpreter and doesn't cross the Bazel action boundary. Bind if a future rule needs a Bazel-visible path.</td><td style="text-align: left"><a href="https://bazel.build/concepts/labels">Label</a></td><td style="text-align: left">optional</td><td style="text-align: left"><code>"@rules_aldec_riviera//riviera/private/shims:alib.sh"</code></td></tr>
+<tr><td style="text-align: left"><a id="riviera_toolchain-alog"></a>alog</td><td style="text-align: left">Executable invoked as <code>alog</code>. Optional — currently runs inside vsimsa's TCL interpreter and doesn't cross the Bazel action boundary. Bind if a future rule needs a Bazel-visible path.</td><td style="text-align: left"><a href="https://bazel.build/concepts/labels">Label</a></td><td style="text-align: left">optional</td><td style="text-align: left"><code>"@rules_aldec_riviera//riviera/private/shims:alog.sh"</code></td></tr>
+<tr><td style="text-align: left"><a id="riviera_toolchain-asim"></a>asim</td><td style="text-align: left">Executable invoked as <code>asim</code>. Optional — currently runs inside vsimsa's TCL interpreter and doesn't cross the Bazel action boundary. Bind if a future rule needs a Bazel-visible path.</td><td style="text-align: left"><a href="https://bazel.build/concepts/labels">Label</a></td><td style="text-align: left">optional</td><td style="text-align: left"><code>"@rules_aldec_riviera//riviera/private/shims:asim.sh"</code></td></tr>
+<tr><td style="text-align: left"><a id="riviera_toolchain-env"></a>env</td><td style="text-align: left">Extra env vars applied to every action that resolves this toolchain.</td><td style="text-align: left"><a href="https://bazel.build/rules/lib/dict">Dictionary: String -&gt; String</a></td><td style="text-align: left">optional</td><td style="text-align: left"><code>{}</code></td></tr>
+<tr><td style="text-align: left"><a id="riviera_toolchain-jobs"></a>jobs</td><td style="text-align: left">Default CPU-count hint for actions and tests that resolve this toolchain. <code>-1</code> (default) means no hint — Bazel schedules however it likes; <code>0</code> also means no hint; <code>N &gt; 0</code> requests N CPUs. Per-target <code>jobs = -1</code> (the rule default) inherits this value.</td><td style="text-align: left">Integer</td><td style="text-align: left">optional</td><td style="text-align: left"><code>-1</code></td></tr>
+<tr><td style="text-align: left"><a id="riviera_toolchain-requires_network"></a>requires_network</td><td style="text-align: left">Set True when Riviera actions need network access (FlexLM license server).</td><td style="text-align: left">Boolean</td><td style="text-align: left">optional</td><td style="text-align: left"><code>False</code></td></tr>
+<tr><td style="text-align: left"><a id="riviera_toolchain-version"></a>version</td><td style="text-align: left">Toolchain version identifier for diagnostics.</td><td style="text-align: left">String</td><td style="text-align: left">optional</td><td style="text-align: left"><code>""</code></td></tr>
+<tr><td style="text-align: left"><a id="riviera_toolchain-vmap"></a>vmap</td><td style="text-align: left">Executable invoked as <code>vmap</code>. Optional — currently runs inside vsimsa's TCL interpreter and doesn't cross the Bazel action boundary. Bind if a future rule needs a Bazel-visible path.</td><td style="text-align: left"><a href="https://bazel.build/concepts/labels">Label</a></td><td style="text-align: left">optional</td><td style="text-align: left"><code>"@rules_aldec_riviera//riviera/private/shims:vmap.sh"</code></td></tr>
+<tr><td style="text-align: left"><a id="riviera_toolchain-vsim"></a>vsim</td><td style="text-align: left">Executable invoked as <code>vsim</code>. Optional — currently runs inside vsimsa's TCL interpreter and doesn't cross the Bazel action boundary. Bind if a future rule needs a Bazel-visible path.</td><td style="text-align: left"><a href="https://bazel.build/concepts/labels">Label</a></td><td style="text-align: left">optional</td><td style="text-align: left"><code>"@rules_aldec_riviera//riviera/private/shims:vsim.sh"</code></td></tr>
+<tr><td style="text-align: left"><a id="riviera_toolchain-vsimsa"></a>vsimsa</td><td style="text-align: left">Executable invoked as <code>vsimsa</code>. MANDATORY — the rules call this tool directly.</td><td style="text-align: left"><a href="https://bazel.build/concepts/labels">Label</a></td><td style="text-align: left">required</td><td style="text-align: left"></td></tr>
+</tbody></table>
+</div>
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="riviera_sim_test.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="acdb2lcov.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="riviera_sim_test.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="acdb2lcov.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr.min.js"></script>
+        <script src="mark.min.js"></script>
+        <script src="searcher.js"></script>
+
+        <script src="clipboard.min.js"></script>
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

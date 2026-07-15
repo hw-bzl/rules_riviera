@@ -1,0 +1,486 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>rules_aldec_riviera</title>
+        <meta name="robots" content="noindex">
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc.js"></script>
+    </head>
+    <body>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">rules_aldec_riviera</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/hw-bzl/rules_aldec_riviera" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="rules_aldec_riviera"><a class="header" href="#rules_aldec_riviera">rules_aldec_riviera</a></h1>
+<p>Bazel rules for <a href="https://www.aldec.com/en/products/functional_verification/riviera-pro">Aldec Riviera-PRO</a>, a mixed-language (Verilog / SystemVerilog / VHDL) HDL simulator.</p>
+<p>The public surface is four rules over three providers:</p>
+<ul>
+<li><strong><code>riviera_library</code></strong> — compile a <code>verilog_library</code> / <code>vhdl_library</code> DAG into ONE self-contained Riviera library.</li>
+<li><strong><code>riviera_hdl_testbench</code></strong> — package an HDL testbench top for elaboration.</li>
+<li><strong><code>riviera_cocotb_testbench</code></strong> — package a Python cocotb testbench (auto-locates <code>libcocotbvpi_aldec.so</code>, wires the VPI).</li>
+<li><strong><code>riviera_sim_test</code></strong> — elaborate + simulate a testbench under <code>vsimsa</code>. Cocotb-agnostic — only reads <code>RivieraTestbenchInfo</code>.</li>
+<li><strong><code>riviera_toolchain</code></strong> — bind the eight Riviera executables (<code>vsimsa</code>/<code>vsim</code>/<code>alib</code>/<code>alog</code>/<code>acom</code>/<code>asim</code>/<code>vmap</code>/<code>acdb</code>) to the toolchain type the rules resolve.</li>
+</ul>
+<p>Everything else — coverage collection under <code>bazel coverage</code>, <code>//tools/acdb2lcov</code> for ACDB -&gt; lcov conversion — is designed around those rules.</p>
+<h2 id="setup"><a class="header" href="#setup">Setup</a></h2>
+<p>Riviera-PRO is a commercial simulator; this repo does not distribute it. rules_aldec_riviera provides the Bazel rules and the toolchain type contract — how Riviera actually reaches your Bazel actions is deployment infrastructure and lives entirely in your own repo.</p>
+<h3 id="modulebazel"><a class="header" href="#modulebazel">MODULE.bazel</a></h3>
+<pre><code class="language-python">bazel_dep(name = "rules_aldec_riviera", version = "0.1.0")
+
+register_toolchains("//tools/riviera:my_riviera_toolchain")
+</code></pre>
+<h3 id="author-a-toolchain"><a class="header" href="#author-a-toolchain">Author a toolchain</a></h3>
+<p>Bind <code>vsimsa</code> and <code>acdb</code> (mandatory) to executables that resolve to the corresponding Riviera binaries. The ideal is a hermetic toolchain that vendors the install into the Bazel action graph; how that install is actually provisioned is up to you.</p>
+<pre><code class="language-python"># tools/riviera/BUILD.bazel
+load("@rules_aldec_riviera//riviera:riviera_toolchain.bzl", "riviera_toolchain")
+
+riviera_toolchain(
+    name = "my_riviera_toolchain_def",
+    acdb = "//path/to:acdb",
+    vsimsa = "//path/to:vsimsa",
+    requires_network = True,   # set True when the license server is remote
+    version = "2025.04",
+)
+
+toolchain(
+    name = "my_riviera_toolchain",
+    toolchain = ":my_riviera_toolchain_def",
+    toolchain_type = "@rules_aldec_riviera//riviera:toolchain_type",
+)
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="rules"><a class="header" href="#rules">Rules</a></h1>
+<p>Four public rules, three providers. Every rule is single-purpose and speaks one provider — no rule holds "am I in cocotb mode?" state.</p>
+<div class="table-wrapper"><table><thead><tr><th>Rule</th><th>Produces</th><th>Consumes</th></tr></thead><tbody>
+<tr><td><code>riviera_library</code></td><td><code>RivieraLibraryInfo</code></td><td><code>VerilogInfo</code> / <code>VhdlInfo</code></td></tr>
+<tr><td><code>riviera_hdl_testbench</code></td><td><code>RivieraTestbenchInfo</code></td><td><code>RivieraLibraryInfo</code></td></tr>
+<tr><td><code>riviera_cocotb_testbench</code></td><td><code>RivieraTestbenchInfo</code> + <code>PyInfo</code></td><td><code>RivieraLibraryInfo</code>, <code>PyInfo</code></td></tr>
+<tr><td><code>riviera_sim_test</code></td><td>(a bazel test)</td><td><code>RivieraTestbenchInfo</code></td></tr>
+<tr><td><code>riviera_toolchain</code></td><td><code>RivieraToolchainInfo</code></td><td>8 tool shims</td></tr>
+</tbody></table>
+</div>
+<p>Anything that produces <code>RivieraLibraryInfo</code> (pre-built vendor library, imported UVM archive, etc.) is a drop-in for the testbench rules' <code>library</code> attr; anything that produces <code>RivieraTestbenchInfo</code> is a drop-in for <code>riviera_sim_test.testbench</code>. No sim-rule surgery required to accommodate new sources of either provider.</p>
+<ul>
+<li><a href="./riviera_library.html"><code>riviera_library</code></a> — compile a <code>verilog_library</code> / <code>vhdl_library</code> DAG into one Riviera library.</li>
+<li><a href="./riviera_testbench.html"><code>riviera_testbench</code></a> — two rules: <code>riviera_hdl_testbench</code> (SV/VHDL top drives DUT) and <code>riviera_cocotb_testbench</code> (Python drives DUT via VPI). Both feed <code>riviera_sim_test</code>.</li>
+<li><a href="./riviera_sim_test.html"><code>riviera_sim_test</code></a> — elaborate + simulate a testbench under <code>vsimsa</code>. Automatic coverage under <code>bazel coverage</code>.</li>
+<li><a href="./riviera_toolchain.html"><code>riviera_toolchain</code></a> — bind Riviera executables to the toolchain type consumed by the rules above.</li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div><!-- Generated with Stardoc: http://skydoc.bazel.build -->
+<p>Public entry point for <code>riviera_library</code>.</p>
+<h2 id="rules-1"><a class="header" href="#rules-1">Rules</a></h2>
+<ul>
+<li><a href="riviera_library.html#riviera_library">riviera_library</a></li>
+</ul>
+<p><a id="riviera_library"></a></p>
+<h2 id="riviera_library"><a class="header" href="#riviera_library">riviera_library</a></h2>
+<pre>
+load("@rules_aldec_riviera//riviera:riviera_library.bzl", "riviera_library")
+
+riviera_library(<a href="riviera_library.html#riviera_library-name">name</a>, <a href="riviera_library.html#riviera_library-deps">deps</a>, <a href="riviera_library.html#riviera_library-srcs">srcs</a>, <a href="riviera_library.html#riviera_library-compile_opts">compile_opts</a>, <a href="riviera_library.html#riviera_library-defines">defines</a>, <a href="riviera_library.html#riviera_library-exec_requirements">exec_requirements</a>, <a href="riviera_library.html#riviera_library-jobs">jobs</a>, <a href="riviera_library.html#riviera_library-library_name">library_name</a>)
+</pre>
+<p>Compile the full transitive HDL DAG into ONE self-contained Aldec Riviera library.</p>
+<p><code>deps</code> takes <code>verilog_library</code> / <code>vhdl_library</code> targets (anything
+providing <code>VerilogInfo</code> or <code>VhdlInfo</code>). The rule walks the whole
+reachable source graph — own srcs + hdrs, transitive <code>.deps</code>, and
+cross-language <code>.vhdl_deps</code> / <code>.verilog_deps</code> — and compiles it in
+one <code>alib</code>/<code>alog</code>/<code>acom</code> invocation via a generated <code>vsimsa</code> <code>.do</code>
+script. Output is one TreeArtifact directory; downstream consumers
+(testbench rules, <code>riviera_sim_test</code>) <code>vmap</code> it by the logical library
+name.</p>
+<p><code>srcs</code> is an optional escape hatch for HDL files that only make sense
+inside this Riviera library (a Riviera-specific stub, a compile-time
+wrapper) and don't warrant their own HDL-library target.</p>
+<p>Runs through <code>//tools/riviera_wrapper</code> so vsimsa's HOME is isolated
+per-action (<code>~/.aldec/</code> doesn't bleed into the user's real home) and
+stdout is buffered — nothing streams unless the action fails or a
+<code># Error</code>/<code># Fatal</code> slips past vsimsa's exit code.</p>
+<p>Users compose library boundaries by wiring multiple <code>riviera_library</code>
+targets together via other consumers, not by cross-linking <code>riviera_library</code> deps.</p>
+<p><strong>ATTRIBUTES</strong></p>
+<div class="table-wrapper"><table><thead><tr><th style="text-align: left">Name</th><th style="text-align: left">Description</th><th style="text-align: left">Type</th><th style="text-align: left">Mandatory</th><th style="text-align: left">Default</th></tr></thead><tbody>
+<tr><td style="text-align: left"><a id="riviera_library-name"></a>name</td><td style="text-align: left">A unique name for this target.</td><td style="text-align: left"><a href="https://bazel.build/concepts/labels#target-names">Name</a></td><td style="text-align: left">required</td><td style="text-align: left"></td></tr>
+<tr><td style="text-align: left"><a id="riviera_library-deps"></a>deps</td><td style="text-align: left">verilog_library / vhdl_library targets. The full reachable source graph (own srcs+hdrs, transitive deps, cross-language deps) is compiled into this Riviera library.</td><td style="text-align: left"><a href="https://bazel.build/concepts/labels">List of labels</a></td><td style="text-align: left">optional</td><td style="text-align: left"><code>[]</code></td></tr>
+<tr><td style="text-align: left"><a id="riviera_library-srcs"></a>srcs</td><td style="text-align: left">Optional raw HDL files (<code>.v</code>/<code>.sv</code>/<code>.vh</code>/<code>.svh</code>/<code>.vhd</code>/<code>.vhdl</code>) unique to this Riviera library. Most callers leave this empty and put their sources in a verilog_library/vhdl_library referenced via <code>deps</code>.</td><td style="text-align: left"><a href="https://bazel.build/concepts/labels">List of labels</a></td><td style="text-align: left">optional</td><td style="text-align: left"><code>[]</code></td></tr>
+<tr><td style="text-align: left"><a id="riviera_library-compile_opts"></a>compile_opts</td><td style="text-align: left">Extra flags forwarded to alog/acom.</td><td style="text-align: left">List of strings</td><td style="text-align: left">optional</td><td style="text-align: left"><code>[]</code></td></tr>
+<tr><td style="text-align: left"><a id="riviera_library-defines"></a>defines</td><td style="text-align: left"><code>+define+FOO=bar</code> macros passed to alog (Verilog only).</td><td style="text-align: left">List of strings</td><td style="text-align: left">optional</td><td style="text-align: left"><code>[]</code></td></tr>
+<tr><td style="text-align: left"><a id="riviera_library-exec_requirements"></a>exec_requirements</td><td style="text-align: left">Extra execution_requirements merged on top of the defaults (which are <code>resources:riviera_license=1</code> and — when the toolchain has <code>requires_network=True</code> — <code>requires-network</code>). Use to override the license slot count, force <code>no-remote-exec</code>, tag a specific resource pool, etc.</td><td style="text-align: left"><a href="https://bazel.build/rules/lib/dict">Dictionary: String -&gt; String</a></td><td style="text-align: left">optional</td><td style="text-align: left"><code>{}</code></td></tr>
+<tr><td style="text-align: left"><a id="riviera_library-jobs"></a>jobs</td><td style="text-align: left">CPU slots to request from Bazel's local scheduler. <code>-1</code> (default) inherits the toolchain's <code>jobs</code> field; <code>0</code> explicitly means no hint; <code>N &gt; 0</code> maps to <code>resource_set = {'cpu': N}</code>. Only hints the scheduler — pass any Riviera-specific parallel flags (e.g. <code>-j</code>, <code>-mfcu</code>) via <code>compile_opts</code>.</td><td style="text-align: left">Integer</td><td style="text-align: left">optional</td><td style="text-align: left"><code>-1</code></td></tr>
+<tr><td style="text-align: left"><a id="riviera_library-library_name"></a>library_name</td><td style="text-align: left">Logical Riviera library name. Defaults to the target's label name.</td><td style="text-align: left">String</td><td style="text-align: left">optional</td><td style="text-align: left"><code>""</code></td></tr>
+</tbody></table>
+</div><div style="break-before: page; page-break-before: always;"></div><!-- Generated with Stardoc: http://skydoc.bazel.build -->
+<p>Public entry point for <code>riviera_hdl_testbench</code> and <code>riviera_cocotb_testbench</code>.</p>
+<h2 id="rules-2"><a class="header" href="#rules-2">Rules</a></h2>
+<ul>
+<li><a href="riviera_testbench.html#riviera_cocotb_testbench">riviera_cocotb_testbench</a></li>
+<li><a href="riviera_testbench.html#riviera_hdl_testbench">riviera_hdl_testbench</a></li>
+</ul>
+<p><a id="riviera_cocotb_testbench"></a></p>
+<h2 id="riviera_cocotb_testbench"><a class="header" href="#riviera_cocotb_testbench">riviera_cocotb_testbench</a></h2>
+<pre>
+load("@rules_aldec_riviera//riviera:riviera_testbench.bzl", "riviera_cocotb_testbench")
+
+riviera_cocotb_testbench(<a href="riviera_testbench.html#riviera_cocotb_testbench-name">name</a>, <a href="riviera_testbench.html#riviera_cocotb_testbench-deps">deps</a>, <a href="riviera_testbench.html#riviera_cocotb_testbench-library">library</a>, <a href="riviera_testbench.html#riviera_cocotb_testbench-module">module</a>, <a href="riviera_testbench.html#riviera_cocotb_testbench-top">top</a>)
+</pre>
+<p>A cocotb testbench — <code>top</code> is the HDL DUT, <code>module</code> is the Python cocotb test module that drives it via VPI.</p>
+<p>Produces <code>RivieraTestbenchInfo</code> with every cocotb-specific derivation
+resolved at testbench-definition time:</p>
+<ul>
+<li><code>top_unit</code> — the unqualified unit name for cocotb's <code>TOPLEVEL</code> env.</li>
+<li><code>cocotb_toplevel_lang</code> — derived from <code>library.language</code> (mixed
+defaults to <code>verilog</code>; override via the sim rule's <code>env</code> attr).</li>
+<li><code>vpi_lib</code> — the <code>libcocotbvpi_aldec.so</code> located inside <code>deps</code>
+runfiles; the sim rule injects <code>-pli &lt;path&gt;</code> into asim.</li>
+</ul>
+<p>Also provides <code>PyInfo</code> (merged from <code>deps</code> via <code>py_venv_common</code>) so
+<code>riviera_sim_test</code> can pull the whole Python graph into its own venv
+with one <code>create_dep_info</code> call. When cocotb loads embedded Python
+via the VPI shared object, that Python sees cocotb in its <code>sys.path</code>.</p>
+<p><strong>ATTRIBUTES</strong></p>
+<div class="table-wrapper"><table><thead><tr><th style="text-align: left">Name</th><th style="text-align: left">Description</th><th style="text-align: left">Type</th><th style="text-align: left">Mandatory</th><th style="text-align: left">Default</th></tr></thead><tbody>
+<tr><td style="text-align: left"><a id="riviera_cocotb_testbench-name"></a>name</td><td style="text-align: left">A unique name for this target.</td><td style="text-align: left"><a href="https://bazel.build/concepts/labels#target-names">Name</a></td><td style="text-align: left">required</td><td style="text-align: left"></td></tr>
+<tr><td style="text-align: left"><a id="riviera_cocotb_testbench-deps"></a>deps</td><td style="text-align: left">PyInfo targets folded into the launcher venv. One must transitively provide cocotb (so libcocotbvpi_aldec.so lands in runfiles).</td><td style="text-align: left"><a href="https://bazel.build/concepts/labels">List of labels</a></td><td style="text-align: left">required</td><td style="text-align: left"></td></tr>
+<tr><td style="text-align: left"><a id="riviera_cocotb_testbench-library"></a>library</td><td style="text-align: left">The riviera_library containing the DUT.</td><td style="text-align: left"><a href="https://bazel.build/concepts/labels">Label</a></td><td style="text-align: left">required</td><td style="text-align: left"></td></tr>
+<tr><td style="text-align: left"><a id="riviera_cocotb_testbench-module"></a>module</td><td style="text-align: left">cocotb test module name (goes to <code>MODULE</code> env at test time).</td><td style="text-align: left">String</td><td style="text-align: left">required</td><td style="text-align: left"></td></tr>
+<tr><td style="text-align: left"><a id="riviera_cocotb_testbench-top"></a>top</td><td style="text-align: left">HDL DUT unit name (unqualified). The rule prepends the library's logical name for asim.</td><td style="text-align: left">String</td><td style="text-align: left">required</td><td style="text-align: left"></td></tr>
+</tbody></table>
+</div>
+<p><a id="riviera_hdl_testbench"></a></p>
+<h2 id="riviera_hdl_testbench"><a class="header" href="#riviera_hdl_testbench">riviera_hdl_testbench</a></h2>
+<pre>
+load("@rules_aldec_riviera//riviera:riviera_testbench.bzl", "riviera_hdl_testbench")
+
+riviera_hdl_testbench(<a href="riviera_testbench.html#riviera_hdl_testbench-name">name</a>, <a href="riviera_testbench.html#riviera_hdl_testbench-library">library</a>, <a href="riviera_testbench.html#riviera_hdl_testbench-top">top</a>)
+</pre>
+<p>A plain HDL testbench — <code>top</code> is a SystemVerilog / VHDL module that drives the DUT and calls <code>$finish</code> / <code>std.env.finish</code>.</p>
+<p>Produces <code>RivieraTestbenchInfo</code> with <code>cocotb_module=""</code> and
+<code>vpi_lib=None</code>. <code>riviera_sim_test</code> reads that provider and elaborates
+<code>&lt;library&gt;.&lt;top&gt;</code> under <code>vsimsa</code>; the HDL testbench itself terminates
+the simulation.</p>
+<p>Splitting cocotb and HDL into two rules — instead of one rule with an
+optional-cocotb attr — keeps every attr on each rule always-applicable
+and moves the "am I in cocotb mode?" decision to testbench-definition
+time rather than sim-invocation time.</p>
+<p><strong>ATTRIBUTES</strong></p>
+<div class="table-wrapper"><table><thead><tr><th style="text-align: left">Name</th><th style="text-align: left">Description</th><th style="text-align: left">Type</th><th style="text-align: left">Mandatory</th><th style="text-align: left">Default</th></tr></thead><tbody>
+<tr><td style="text-align: left"><a id="riviera_hdl_testbench-name"></a>name</td><td style="text-align: left">A unique name for this target.</td><td style="text-align: left"><a href="https://bazel.build/concepts/labels#target-names">Name</a></td><td style="text-align: left">required</td><td style="text-align: left"></td></tr>
+<tr><td style="text-align: left"><a id="riviera_hdl_testbench-library"></a>library</td><td style="text-align: left">The riviera_library containing the DUT + testbench HDL.</td><td style="text-align: left"><a href="https://bazel.build/concepts/labels">Label</a></td><td style="text-align: left">required</td><td style="text-align: left"></td></tr>
+<tr><td style="text-align: left"><a id="riviera_hdl_testbench-top"></a>top</td><td style="text-align: left">HDL top-level unit name (unqualified). The rule prepends the library's logical name for asim.</td><td style="text-align: left">String</td><td style="text-align: left">required</td><td style="text-align: left"></td></tr>
+</tbody></table>
+</div><div style="break-before: page; page-break-before: always;"></div><!-- Generated with Stardoc: http://skydoc.bazel.build -->
+<p>Public entry point for <code>riviera_sim_test</code>.</p>
+<h2 id="rules-3"><a class="header" href="#rules-3">Rules</a></h2>
+<ul>
+<li><a href="riviera_sim_test.html#riviera_sim_test">riviera_sim_test</a></li>
+</ul>
+<p><a id="riviera_sim_test"></a></p>
+<h2 id="riviera_sim_test"><a class="header" href="#riviera_sim_test">riviera_sim_test</a></h2>
+<pre>
+load("@rules_aldec_riviera//riviera:riviera_sim_test.bzl", "riviera_sim_test")
+
+riviera_sim_test(<a href="riviera_sim_test.html#riviera_sim_test-name">name</a>, <a href="riviera_sim_test.html#riviera_sim_test-data">data</a>, <a href="riviera_sim_test.html#riviera_sim_test-env">env</a>, <a href="riviera_sim_test.html#riviera_sim_test-exec_requirements">exec_requirements</a>, <a href="riviera_sim_test.html#riviera_sim_test-generics">generics</a>, <a href="riviera_sim_test.html#riviera_sim_test-jobs">jobs</a>, <a href="riviera_sim_test.html#riviera_sim_test-sim_opts">sim_opts</a>, <a href="riviera_sim_test.html#riviera_sim_test-testbench">testbench</a>)
+</pre>
+<p>Elaborate + simulate a Riviera testbench under <code>vsimsa</code> as a Bazel test.</p>
+<p>Takes exactly one <code>testbench</code> — either an <code>riviera_hdl_testbench</code> or an
+<code>riviera_cocotb_testbench</code>, both of which provide <code>RivieraTestbenchInfo</code>.
+The rule is oblivious to the HDL-vs-cocotb distinction: everything
+cocotb-specific (the <code>-pli</code> VPI path, <code>MODULE</code> / <code>TOPLEVEL</code> /
+<code>COCOTB_TOPLEVEL_LANG</code> env, merged Python <code>PyInfo</code>) is packaged inside
+the testbench provider and forwarded verbatim.</p>
+<p>Rule ↔ launcher hand-off:</p>
+<ol>
+<li>The rule builds a <code>ctx.actions.args()</code> bundle describing everything
+the launcher needs (tool rlocation keys, library name, top, generics,
+sim opts, coverage flag, cocotb config) and writes it to a multiline
+param file via <code>ctx.actions.write(content = args)</code>.</li>
+<li>It exposes exactly one env var — <code>RIVIERA_ARGS_FILE_RLOC</code> — whose
+value is the args file's runfiles-library key.</li>
+<li>The launcher (<code>//tools/riviera_launcher</code>) reads the env, resolves
+the args file via <code>runfiles.Rlocation</code>, argparse's it, resolves
+every <code>*_rloc</code> field to an absolute path, constructs the <code>.do</code> at
+runtime, and hands vsimsa the absolute path.</li>
+</ol>
+<p>Coverage kicks in automatically under <code>bazel coverage</code> via
+<code>ctx.coverage_instrumented()</code>: the launcher adds <code>-coverage sbceam -acdb</code> to the .do, renders html + text into
+<code>$TEST_UNDECLARED_OUTPUTS_DIR</code>, and converts text → lcov via
+<code>//tools/acdb2lcov</code> for <code>$COVERAGE_OUTPUT_FILE</code>.</p>
+<p><strong>ATTRIBUTES</strong></p>
+<div class="table-wrapper"><table><thead><tr><th style="text-align: left">Name</th><th style="text-align: left">Description</th><th style="text-align: left">Type</th><th style="text-align: left">Mandatory</th><th style="text-align: left">Default</th></tr></thead><tbody>
+<tr><td style="text-align: left"><a id="riviera_sim_test-name"></a>name</td><td style="text-align: left">A unique name for this target.</td><td style="text-align: left"><a href="https://bazel.build/concepts/labels#target-names">Name</a></td><td style="text-align: left">required</td><td style="text-align: left"></td></tr>
+<tr><td style="text-align: left"><a id="riviera_sim_test-data"></a>data</td><td style="text-align: left">Runtime data (memory init files, etc.) staged into runfiles.</td><td style="text-align: left"><a href="https://bazel.build/concepts/labels">List of labels</a></td><td style="text-align: left">optional</td><td style="text-align: left"><code>[]</code></td></tr>
+<tr><td style="text-align: left"><a id="riviera_sim_test-env"></a>env</td><td style="text-align: left">Extra environment variables for the test action. Overrides anything the rule derives automatically (e.g. COCOTB_TOPLEVEL_LANG for a mixed-language design with a VHDL top).</td><td style="text-align: left"><a href="https://bazel.build/rules/lib/dict">Dictionary: String -&gt; String</a></td><td style="text-align: left">optional</td><td style="text-align: left"><code>{}</code></td></tr>
+<tr><td style="text-align: left"><a id="riviera_sim_test-exec_requirements"></a>exec_requirements</td><td style="text-align: left">Extra execution_requirements merged on top of the defaults (<code>resources:riviera_license=1</code>, plus <code>requires-network</code> when the toolchain says so). Use to override license slot count, force <code>no-remote-exec</code>, request a named resource pool, etc.</td><td style="text-align: left"><a href="https://bazel.build/rules/lib/dict">Dictionary: String -&gt; String</a></td><td style="text-align: left">optional</td><td style="text-align: left"><code>{}</code></td></tr>
+<tr><td style="text-align: left"><a id="riviera_sim_test-generics"></a>generics</td><td style="text-align: left">Elaboration-time parameters / generics (mapped to <code>-g &lt;name&gt;=&lt;value&gt;</code>).</td><td style="text-align: left"><a href="https://bazel.build/rules/lib/dict">Dictionary: String -&gt; String</a></td><td style="text-align: left">optional</td><td style="text-align: left"><code>{}</code></td></tr>
+<tr><td style="text-align: left"><a id="riviera_sim_test-jobs"></a>jobs</td><td style="text-align: left">CPU slots requested for the test. <code>-1</code> (default) inherits the toolchain's <code>jobs</code> field; <code>0</code> explicitly means no hint; <code>N &gt; 0</code> adds <code>cpu:N</code> to <code>testing.ExecutionInfo.requirements</code>. Only hints the scheduler — pass any Riviera-specific parallel simulator flags (<code>-j</code>, <code>-threads</code>, <code>-mfcu</code>, etc.) through <code>sim_opts</code>.</td><td style="text-align: left">Integer</td><td style="text-align: left">optional</td><td style="text-align: left"><code>-1</code></td></tr>
+<tr><td style="text-align: left"><a id="riviera_sim_test-sim_opts"></a>sim_opts</td><td style="text-align: left">Extra arguments forwarded to <code>asim</code>.</td><td style="text-align: left">List of strings</td><td style="text-align: left">optional</td><td style="text-align: left"><code>[]</code></td></tr>
+<tr><td style="text-align: left"><a id="riviera_sim_test-testbench"></a>testbench</td><td style="text-align: left">A target providing RivieraTestbenchInfo — either a <code>riviera_hdl_testbench</code> or a <code>riviera_cocotb_testbench</code>.</td><td style="text-align: left"><a href="https://bazel.build/concepts/labels">Label</a></td><td style="text-align: left">required</td><td style="text-align: left"></td></tr>
+</tbody></table>
+</div><div style="break-before: page; page-break-before: always;"></div><!-- Generated with Stardoc: http://skydoc.bazel.build -->
+<p>Public entry point for <code>riviera_toolchain</code>.</p>
+<h2 id="rules-4"><a class="header" href="#rules-4">Rules</a></h2>
+<ul>
+<li><a href="riviera_toolchain.html#riviera_toolchain">riviera_toolchain</a></li>
+</ul>
+<p><a id="riviera_toolchain"></a></p>
+<h2 id="riviera_toolchain"><a class="header" href="#riviera_toolchain">riviera_toolchain</a></h2>
+<pre>
+load("@rules_aldec_riviera//riviera:riviera_toolchain.bzl", "riviera_toolchain")
+
+riviera_toolchain(<a href="riviera_toolchain.html#riviera_toolchain-name">name</a>, <a href="riviera_toolchain.html#riviera_toolchain-acdb">acdb</a>, <a href="riviera_toolchain.html#riviera_toolchain-acom">acom</a>, <a href="riviera_toolchain.html#riviera_toolchain-alib">alib</a>, <a href="riviera_toolchain.html#riviera_toolchain-alog">alog</a>, <a href="riviera_toolchain.html#riviera_toolchain-asim">asim</a>, <a href="riviera_toolchain.html#riviera_toolchain-env">env</a>, <a href="riviera_toolchain.html#riviera_toolchain-jobs">jobs</a>, <a href="riviera_toolchain.html#riviera_toolchain-requires_network">requires_network</a>, <a href="riviera_toolchain.html#riviera_toolchain-version">version</a>, <a href="riviera_toolchain.html#riviera_toolchain-vmap">vmap</a>,
+                  <a href="riviera_toolchain.html#riviera_toolchain-vsim">vsim</a>, <a href="riviera_toolchain.html#riviera_toolchain-vsimsa">vsimsa</a>)
+</pre>
+<p>Declares an Aldec Riviera-PRO toolchain by binding one executable per Riviera tool.</p>
+<p>Each tool attr takes an executable target that resolves to the
+corresponding Riviera binary. In the ideal case that's a hermetic
+toolchain that vendors the whole install into the Bazel action graph;
+in practice it can be anything Bazel can <code>exec</code> — the toolchain only
+cares that each attr resolves to something that behaves like the
+named tool.</p>
+<p><strong>Load-bearing tools</strong> — invoked directly across the Bazel action
+boundary, so their attrs are <code>mandatory = True</code>:</p>
+<ul>
+<li><code>vsimsa</code> — every <code>riviera_library</code> compile action and every
+<code>riviera_sim_test</code> launcher call.</li>
+<li><code>acdb</code> — invoked by <code>riviera_sim_test</code>'s launcher during
+<code>bazel coverage</code> post-processing.</li>
+</ul>
+<p><strong>Discoverability tools</strong> — <code>vsim</code>, <code>alib</code>, <code>alog</code>, <code>acom</code>, <code>asim</code>,
+<code>vmap</code> — run inside vsimsa's TCL interpreter today and never cross the
+Bazel boundary. Exposed here so future rules or downstream consumers
+have a place to bind if they ever need a Bazel-visible path to those
+binaries.</p>
+<p><strong>ATTRIBUTES</strong></p>
+<div class="table-wrapper"><table><thead><tr><th style="text-align: left">Name</th><th style="text-align: left">Description</th><th style="text-align: left">Type</th><th style="text-align: left">Mandatory</th><th style="text-align: left">Default</th></tr></thead><tbody>
+<tr><td style="text-align: left"><a id="riviera_toolchain-name"></a>name</td><td style="text-align: left">A unique name for this target.</td><td style="text-align: left"><a href="https://bazel.build/concepts/labels#target-names">Name</a></td><td style="text-align: left">required</td><td style="text-align: left"></td></tr>
+<tr><td style="text-align: left"><a id="riviera_toolchain-acdb"></a>acdb</td><td style="text-align: left">Executable invoked as <code>acdb</code>. MANDATORY — the rules call this tool directly.</td><td style="text-align: left"><a href="https://bazel.build/concepts/labels">Label</a></td><td style="text-align: left">required</td><td style="text-align: left"></td></tr>
+<tr><td style="text-align: left"><a id="riviera_toolchain-acom"></a>acom</td><td style="text-align: left">Executable invoked as <code>acom</code>. Optional — currently runs inside vsimsa's TCL interpreter and doesn't cross the Bazel action boundary. Bind if a future rule needs a Bazel-visible path.</td><td style="text-align: left"><a href="https://bazel.build/concepts/labels">Label</a></td><td style="text-align: left">optional</td><td style="text-align: left"><code>"@rules_aldec_riviera//riviera/private/shims:acom.sh"</code></td></tr>
+<tr><td style="text-align: left"><a id="riviera_toolchain-alib"></a>alib</td><td style="text-align: left">Executable invoked as <code>alib</code>. Optional — currently runs inside vsimsa's TCL interpreter and doesn't cross the Bazel action boundary. Bind if a future rule needs a Bazel-visible path.</td><td style="text-align: left"><a href="https://bazel.build/concepts/labels">Label</a></td><td style="text-align: left">optional</td><td style="text-align: left"><code>"@rules_aldec_riviera//riviera/private/shims:alib.sh"</code></td></tr>
+<tr><td style="text-align: left"><a id="riviera_toolchain-alog"></a>alog</td><td style="text-align: left">Executable invoked as <code>alog</code>. Optional — currently runs inside vsimsa's TCL interpreter and doesn't cross the Bazel action boundary. Bind if a future rule needs a Bazel-visible path.</td><td style="text-align: left"><a href="https://bazel.build/concepts/labels">Label</a></td><td style="text-align: left">optional</td><td style="text-align: left"><code>"@rules_aldec_riviera//riviera/private/shims:alog.sh"</code></td></tr>
+<tr><td style="text-align: left"><a id="riviera_toolchain-asim"></a>asim</td><td style="text-align: left">Executable invoked as <code>asim</code>. Optional — currently runs inside vsimsa's TCL interpreter and doesn't cross the Bazel action boundary. Bind if a future rule needs a Bazel-visible path.</td><td style="text-align: left"><a href="https://bazel.build/concepts/labels">Label</a></td><td style="text-align: left">optional</td><td style="text-align: left"><code>"@rules_aldec_riviera//riviera/private/shims:asim.sh"</code></td></tr>
+<tr><td style="text-align: left"><a id="riviera_toolchain-env"></a>env</td><td style="text-align: left">Extra env vars applied to every action that resolves this toolchain.</td><td style="text-align: left"><a href="https://bazel.build/rules/lib/dict">Dictionary: String -&gt; String</a></td><td style="text-align: left">optional</td><td style="text-align: left"><code>{}</code></td></tr>
+<tr><td style="text-align: left"><a id="riviera_toolchain-jobs"></a>jobs</td><td style="text-align: left">Default CPU-count hint for actions and tests that resolve this toolchain. <code>-1</code> (default) means no hint — Bazel schedules however it likes; <code>0</code> also means no hint; <code>N &gt; 0</code> requests N CPUs. Per-target <code>jobs = -1</code> (the rule default) inherits this value.</td><td style="text-align: left">Integer</td><td style="text-align: left">optional</td><td style="text-align: left"><code>-1</code></td></tr>
+<tr><td style="text-align: left"><a id="riviera_toolchain-requires_network"></a>requires_network</td><td style="text-align: left">Set True when Riviera actions need network access (FlexLM license server).</td><td style="text-align: left">Boolean</td><td style="text-align: left">optional</td><td style="text-align: left"><code>False</code></td></tr>
+<tr><td style="text-align: left"><a id="riviera_toolchain-version"></a>version</td><td style="text-align: left">Toolchain version identifier for diagnostics.</td><td style="text-align: left">String</td><td style="text-align: left">optional</td><td style="text-align: left"><code>""</code></td></tr>
+<tr><td style="text-align: left"><a id="riviera_toolchain-vmap"></a>vmap</td><td style="text-align: left">Executable invoked as <code>vmap</code>. Optional — currently runs inside vsimsa's TCL interpreter and doesn't cross the Bazel action boundary. Bind if a future rule needs a Bazel-visible path.</td><td style="text-align: left"><a href="https://bazel.build/concepts/labels">Label</a></td><td style="text-align: left">optional</td><td style="text-align: left"><code>"@rules_aldec_riviera//riviera/private/shims:vmap.sh"</code></td></tr>
+<tr><td style="text-align: left"><a id="riviera_toolchain-vsim"></a>vsim</td><td style="text-align: left">Executable invoked as <code>vsim</code>. Optional — currently runs inside vsimsa's TCL interpreter and doesn't cross the Bazel action boundary. Bind if a future rule needs a Bazel-visible path.</td><td style="text-align: left"><a href="https://bazel.build/concepts/labels">Label</a></td><td style="text-align: left">optional</td><td style="text-align: left"><code>"@rules_aldec_riviera//riviera/private/shims:vsim.sh"</code></td></tr>
+<tr><td style="text-align: left"><a id="riviera_toolchain-vsimsa"></a>vsimsa</td><td style="text-align: left">Executable invoked as <code>vsimsa</code>. MANDATORY — the rules call this tool directly.</td><td style="text-align: left"><a href="https://bazel.build/concepts/labels">Label</a></td><td style="text-align: left">required</td><td style="text-align: left"></td></tr>
+</tbody></table>
+</div><div style="break-before: page; page-break-before: always;"></div><h1 id="acdb2lcov"><a class="header" href="#acdb2lcov">acdb2lcov</a></h1>
+<p>A pure-Python tool that converts Aldec's <code>acdb report -xml</code> output to lcov <code>.info</code> format. Usable independently of the Bazel rules — the same code powers <code>riviera_sim_test</code>'s coverage post-processing.</p>
+<h2 id="where-it-lives"><a class="header" href="#where-it-lives">Where it lives</a></h2>
+<ul>
+<li><strong>Binary</strong>: <code>//tools/acdb2lcov:acdb2lcov</code> — a <code>py_binary</code> (from <code>@rules_venv//python:py_binary.bzl</code>) with the CLI entrypoint. <code>py_binary</code> also exposes the module for direct import by any downstream <code>py_binary</code> / <code>py_test</code> / <code>py_library</code> that depends on it. Mypy walks the sources directly via the aspect, so downstream consumers get inline type-hint checking without extra opt-in.</li>
+</ul>
+<h2 id="python-usage"><a class="header" href="#python-usage">Python usage</a></h2>
+<pre><code class="language-python">from acdb2lcov import parse_acdb_xml, emit_lcov
+
+xml = open("coverage_report.xml").read()
+report = parse_acdb_xml(xml)
+open("coverage.info", "w").write(emit_lcov(report.files))
+</code></pre>
+<p><code>to_json</code> / <code>from_json</code> handle serde-style round-trips through <code>dataclasses.asdict</code> + <code>json.dumps</code> — handy for persisting coverage across pipeline stages without re-parsing the XML.</p>
+<h2 id="cli-usage"><a class="header" href="#cli-usage">CLI usage</a></h2>
+<pre><code>bazel run @rules_aldec_riviera//tools/acdb2lcov:acdb2lcov -- \
+    --input coverage_report.xml --output coverage.info
+</code></pre>
+<p>Both flags take filesystem paths.</p>
+<h2 id="format-notes"><a class="header" href="#format-notes">Format notes</a></h2>
+<p>Riviera exposes coverage as <code>acdb report -xml &lt;acdb&gt; -o &lt;out.xml&gt;</code>. The XML schema Aldec ships isn't publicly documented; <code>parse_acdb_xml</code> walks a best-effort mapping:</p>
+<pre><code class="language-xml">&lt;coverage&gt;
+    &lt;file path="/abs/path/to/foo.sv"&gt;
+        &lt;statement line="10" hits="5"/&gt;
+        &lt;branch line="11" block="0" branch="0" hits="0"/&gt;
+    &lt;/file&gt;
+&lt;/coverage&gt;
+</code></pre>
+<p>If a Riviera release changes the element / attribute names, adjust <code>_iter_file_coverage</code> in <a href="https://github.com/hw-bzl/rules_aldec_riviera/blob/main/tools/acdb2lcov/acdb2lcov.py">tools/acdb2lcov/acdb2lcov.py</a> — every parser change stays local to that function.</p>
+<p>Coverage types beyond <code>&lt;statement&gt;</code> and <code>&lt;branch&gt;</code> (Covergroup, Expression, Condition, FSM, Toggle, Assertion, Path) are silently skipped — they're not representable in lcov and the launcher's flow doesn't ask acdb to emit them.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr.min.js"></script>
+        <script src="mark.min.js"></script>
+        <script src="searcher.js"></script>
+
+        <script src="clipboard.min.js"></script>
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+        <script>
+        window.addEventListener('load', function() {
+            window.setTimeout(window.print, 100);
+        });
+        </script>
+
+    </div>
+    </body>
+</html>
