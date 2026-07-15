@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>acdb2lcov - rules_aldec_riviera</title>
+        <title>acdb2lcov - rules_riviera</title>
 
 
         <!-- Custom HTML head -->
@@ -120,13 +120,13 @@
                         </button>
                     </div>
 
-                    <h1 class="menu-title">rules_aldec_riviera</h1>
+                    <h1 class="menu-title">rules_riviera</h1>
 
                     <div class="right-buttons">
                         <a href="print.html" title="Print this book" aria-label="Print this book">
                             <i id="print-button" class="fa fa-print"></i>
                         </a>
-                        <a href="https://github.com/hw-bzl/rules_aldec_riviera" title="Git repository" aria-label="Git repository">
+                        <a href="https://github.com/hw-bzl/rules_riviera" title="Git repository" aria-label="Git repository">
                             <i id="git-repository-button" class="fa fa-github"></i>
                         </a>
 
@@ -170,7 +170,7 @@ open("coverage.info", "w").write(emit_lcov(report.files))
 </code></pre>
 <p><code>to_json</code> / <code>from_json</code> handle serde-style round-trips through <code>dataclasses.asdict</code> + <code>json.dumps</code> — handy for persisting coverage across pipeline stages without re-parsing the XML.</p>
 <h2 id="cli-usage"><a class="header" href="#cli-usage">CLI usage</a></h2>
-<pre><code>bazel run @rules_aldec_riviera//tools/acdb2lcov:acdb2lcov -- \
+<pre><code>bazel run @rules_riviera//tools/acdb2lcov:acdb2lcov -- \
     --input coverage_report.xml --output coverage.info
 </code></pre>
 <p>Both flags take filesystem paths.</p>
@@ -183,7 +183,7 @@ open("coverage.info", "w").write(emit_lcov(report.files))
     &lt;/file&gt;
 &lt;/coverage&gt;
 </code></pre>
-<p>If a Riviera release changes the element / attribute names, adjust <code>_iter_file_coverage</code> in <a href="https://github.com/hw-bzl/rules_aldec_riviera/blob/main/tools/acdb2lcov/acdb2lcov.py">tools/acdb2lcov/acdb2lcov.py</a> — every parser change stays local to that function.</p>
+<p>If a Riviera release changes the element / attribute names, adjust <code>_iter_file_coverage</code> in <a href="https://github.com/hw-bzl/rules_riviera/blob/main/tools/acdb2lcov/acdb2lcov.py">tools/acdb2lcov/acdb2lcov.py</a> — every parser change stays local to that function.</p>
 <p>Coverage types beyond <code>&lt;statement&gt;</code> and <code>&lt;branch&gt;</code> (Covergroup, Expression, Condition, FSM, Toggle, Assertion, Path) are silently skipped — they're not representable in lcov and the launcher's flow doesn't ask acdb to emit them.</p>
 
                     </main>
