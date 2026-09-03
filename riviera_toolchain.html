@@ -173,46 +173,44 @@ riviera_toolchain(<a href="#riviera_toolchain-name">name</a>, <a href="#riviera_
 <p>Each tool attr takes an executable target that resolves to the
 corresponding Riviera binary. In the ideal case that's a hermetic
 toolchain that vendors the whole install into the Bazel action graph;
-in practice it can be anything Bazel can <code>exec</code> — the toolchain only
-cares that each attr resolves to something that behaves like the
-named tool.</p>
-<p><strong>Load-bearing tools</strong> — invoked directly across the Bazel action
-boundary, so their attrs are <code>mandatory = True</code>:</p>
+in practice it can be anything Bazel can <code>exec</code> — a <code>sh_binary</code>
+wrapper that sources a license env file and execs a site install, a
+container launcher, a PATH shim. The toolchain only cares that each
+attr resolves to something that behaves like the named tool.</p>
+<p>Tools bound to a wrapper keep their runfiles: each attr is exposed to
+the rules as a <code>RivieraToolInfo</code> carrying the target's
+<code>files_to_run</code> + <code>default_runfiles</code>, not just the bare executable
+<code>File</code>.</p>
+<p><strong><code>vsimsa</code> is the only mandatory attr.</strong> It is the one binary the rules
+invoke across the Bazel action boundary — every <code>riviera_library</code>
+compile action and every <code>riviera_sim_test</code> launcher call. Coverage
+report generation (<code>acdb report -txt/-html</code>) runs as TCL inside that
+same <code>vsimsa</code> invocation.</p>
+<p><strong>Everything else is optional</strong> and defaults to a shipped
+<code>exec &lt;tool&gt; "$@"</code> PATH-resolving shim:</p>
 <ul>
-<li><code>vsimsa</code> — every <code>riviera_library</code> compile action and every
-<code>riviera_sim_test</code> launcher call. Coverage report generation
-(<code>acdb report -text/-html</code>) also runs as TCL inside the same
-<code>vsimsa</code> invocation.</li>
+<li><code>acdb</code>, <code>vsim</code>, <code>alib</code>, <code>alog</code>, <code>acom</code>, <code>asim</code>, <code>vmap</code> — run inside
+vsimsa's TCL interpreter today and never cross the Bazel boundary.</li>
+<li><code>riviera</code> — the interactive Riviera-PRO IDE. No rule here launches
+it; the attr exists so a rule of your own can.</li>
 </ul>
-<p><strong>Optional but Bazel-visible</strong> — invoked across the boundary only by
-opt-in rules; provide a default PATH-resolving shim so batch-only
-deployments don't need to bind them:</p>
-<ul>
-<li><code>riviera</code> — the interactive Riviera-PRO IDE. Used by the
-<code>riviera_sim_gui</code> rule when the launcher runs with <code>--gui</code>, so
-developers can <code>bazel run</code> a testbench and drop into the wave
-viewer / TCL console.</li>
-</ul>
-<p><strong>Discoverability tools</strong> — <code>vsim</code>, <code>alib</code>, <code>alog</code>, <code>acom</code>, <code>acdb</code>,
-<code>asim</code>, <code>vmap</code> — run inside vsimsa's TCL interpreter today and never
-cross the Bazel boundary. Exposed here so future rules or downstream
-consumers have a place to bind if they ever need a Bazel-visible path
-to those binaries.</p>
+<p>They're exposed so downstream consumers have a place to bind if they
+ever need a Bazel-visible path to those binaries.</p>
 <p><strong>ATTRIBUTES</strong></p>
 <div class="table-wrapper"><table><thead><tr><th style="text-align: left">Name</th><th style="text-align: left">Description</th><th style="text-align: left">Type</th><th style="text-align: left">Mandatory</th><th style="text-align: left">Default</th></tr></thead><tbody>
 <tr><td style="text-align: left"><a id="riviera_toolchain-name"></a>name</td><td style="text-align: left">A unique name for this target.</td><td style="text-align: left"><a href="https://bazel.build/concepts/labels#target-names">Name</a></td><td style="text-align: left">required</td><td style="text-align: left"></td></tr>
-<tr><td style="text-align: left"><a id="riviera_toolchain-acdb"></a>acdb</td><td style="text-align: left">Executable invoked as <code>acdb</code>. Optional — currently runs inside vsimsa's TCL interpreter and doesn't cross the Bazel action boundary. Bind if a future rule needs a Bazel-visible path.</td><td style="text-align: left"><a href="https://bazel.build/concepts/labels">Label</a></td><td style="text-align: left">optional</td><td style="text-align: left"><code>"@rules_riviera//riviera/private/shims:acdb.sh"</code></td></tr>
-<tr><td style="text-align: left"><a id="riviera_toolchain-acom"></a>acom</td><td style="text-align: left">Executable invoked as <code>acom</code>. Optional — currently runs inside vsimsa's TCL interpreter and doesn't cross the Bazel action boundary. Bind if a future rule needs a Bazel-visible path.</td><td style="text-align: left"><a href="https://bazel.build/concepts/labels">Label</a></td><td style="text-align: left">optional</td><td style="text-align: left"><code>"@rules_riviera//riviera/private/shims:acom.sh"</code></td></tr>
-<tr><td style="text-align: left"><a id="riviera_toolchain-alib"></a>alib</td><td style="text-align: left">Executable invoked as <code>alib</code>. Optional — currently runs inside vsimsa's TCL interpreter and doesn't cross the Bazel action boundary. Bind if a future rule needs a Bazel-visible path.</td><td style="text-align: left"><a href="https://bazel.build/concepts/labels">Label</a></td><td style="text-align: left">optional</td><td style="text-align: left"><code>"@rules_riviera//riviera/private/shims:alib.sh"</code></td></tr>
-<tr><td style="text-align: left"><a id="riviera_toolchain-alog"></a>alog</td><td style="text-align: left">Executable invoked as <code>alog</code>. Optional — currently runs inside vsimsa's TCL interpreter and doesn't cross the Bazel action boundary. Bind if a future rule needs a Bazel-visible path.</td><td style="text-align: left"><a href="https://bazel.build/concepts/labels">Label</a></td><td style="text-align: left">optional</td><td style="text-align: left"><code>"@rules_riviera//riviera/private/shims:alog.sh"</code></td></tr>
-<tr><td style="text-align: left"><a id="riviera_toolchain-asim"></a>asim</td><td style="text-align: left">Executable invoked as <code>asim</code>. Optional — currently runs inside vsimsa's TCL interpreter and doesn't cross the Bazel action boundary. Bind if a future rule needs a Bazel-visible path.</td><td style="text-align: left"><a href="https://bazel.build/concepts/labels">Label</a></td><td style="text-align: left">optional</td><td style="text-align: left"><code>"@rules_riviera//riviera/private/shims:asim.sh"</code></td></tr>
+<tr><td style="text-align: left"><a id="riviera_toolchain-acdb"></a>acdb</td><td style="text-align: left">Executable invoked as <code>acdb</code>. Optional — no rule in this repo invokes it across the Bazel action boundary. Bind it if your own rules need a Bazel-visible path, or to override the default PATH-resolving shim.</td><td style="text-align: left"><a href="https://bazel.build/concepts/labels">Label</a></td><td style="text-align: left">optional</td><td style="text-align: left"><code>"@rules_riviera//riviera/private/shims:acdb"</code></td></tr>
+<tr><td style="text-align: left"><a id="riviera_toolchain-acom"></a>acom</td><td style="text-align: left">Executable invoked as <code>acom</code>. Optional — no rule in this repo invokes it across the Bazel action boundary. Bind it if your own rules need a Bazel-visible path, or to override the default PATH-resolving shim.</td><td style="text-align: left"><a href="https://bazel.build/concepts/labels">Label</a></td><td style="text-align: left">optional</td><td style="text-align: left"><code>"@rules_riviera//riviera/private/shims:acom"</code></td></tr>
+<tr><td style="text-align: left"><a id="riviera_toolchain-alib"></a>alib</td><td style="text-align: left">Executable invoked as <code>alib</code>. Optional — no rule in this repo invokes it across the Bazel action boundary. Bind it if your own rules need a Bazel-visible path, or to override the default PATH-resolving shim.</td><td style="text-align: left"><a href="https://bazel.build/concepts/labels">Label</a></td><td style="text-align: left">optional</td><td style="text-align: left"><code>"@rules_riviera//riviera/private/shims:alib"</code></td></tr>
+<tr><td style="text-align: left"><a id="riviera_toolchain-alog"></a>alog</td><td style="text-align: left">Executable invoked as <code>alog</code>. Optional — no rule in this repo invokes it across the Bazel action boundary. Bind it if your own rules need a Bazel-visible path, or to override the default PATH-resolving shim.</td><td style="text-align: left"><a href="https://bazel.build/concepts/labels">Label</a></td><td style="text-align: left">optional</td><td style="text-align: left"><code>"@rules_riviera//riviera/private/shims:alog"</code></td></tr>
+<tr><td style="text-align: left"><a id="riviera_toolchain-asim"></a>asim</td><td style="text-align: left">Executable invoked as <code>asim</code>. Optional — no rule in this repo invokes it across the Bazel action boundary. Bind it if your own rules need a Bazel-visible path, or to override the default PATH-resolving shim.</td><td style="text-align: left"><a href="https://bazel.build/concepts/labels">Label</a></td><td style="text-align: left">optional</td><td style="text-align: left"><code>"@rules_riviera//riviera/private/shims:asim"</code></td></tr>
 <tr><td style="text-align: left"><a id="riviera_toolchain-env"></a>env</td><td style="text-align: left">Extra env vars applied to every action that resolves this toolchain.</td><td style="text-align: left"><a href="https://bazel.build/rules/lib/dict">Dictionary: String -&gt; String</a></td><td style="text-align: left">optional</td><td style="text-align: left"><code>{}</code></td></tr>
 <tr><td style="text-align: left"><a id="riviera_toolchain-jobs"></a>jobs</td><td style="text-align: left">Default CPU-count hint for actions and tests that resolve this toolchain. <code>-1</code> (default) means no hint — Bazel schedules however it likes; <code>0</code> also means no hint; <code>N &gt; 0</code> requests N CPUs. Per-target <code>jobs = -1</code> (the rule default) inherits this value.</td><td style="text-align: left">Integer</td><td style="text-align: left">optional</td><td style="text-align: left"><code>-1</code></td></tr>
 <tr><td style="text-align: left"><a id="riviera_toolchain-requires_network"></a>requires_network</td><td style="text-align: left">Set True when Riviera actions need network access (FlexLM license server).</td><td style="text-align: left">Boolean</td><td style="text-align: left">optional</td><td style="text-align: left"><code>False</code></td></tr>
-<tr><td style="text-align: left"><a id="riviera_toolchain-riviera"></a>riviera</td><td style="text-align: left">Executable invoked as <code>riviera</code>. Optional — currently runs inside vsimsa's TCL interpreter and doesn't cross the Bazel action boundary. Bind if a future rule needs a Bazel-visible path.</td><td style="text-align: left"><a href="https://bazel.build/concepts/labels">Label</a></td><td style="text-align: left">optional</td><td style="text-align: left"><code>"@rules_riviera//riviera/private/shims:riviera.sh"</code></td></tr>
+<tr><td style="text-align: left"><a id="riviera_toolchain-riviera"></a>riviera</td><td style="text-align: left">Executable invoked as <code>riviera</code>. Optional — no rule in this repo invokes it across the Bazel action boundary. Bind it if your own rules need a Bazel-visible path, or to override the default PATH-resolving shim.</td><td style="text-align: left"><a href="https://bazel.build/concepts/labels">Label</a></td><td style="text-align: left">optional</td><td style="text-align: left"><code>"@rules_riviera//riviera/private/shims:riviera"</code></td></tr>
 <tr><td style="text-align: left"><a id="riviera_toolchain-version"></a>version</td><td style="text-align: left">Toolchain version identifier for diagnostics.</td><td style="text-align: left">String</td><td style="text-align: left">optional</td><td style="text-align: left"><code>""</code></td></tr>
-<tr><td style="text-align: left"><a id="riviera_toolchain-vmap"></a>vmap</td><td style="text-align: left">Executable invoked as <code>vmap</code>. Optional — currently runs inside vsimsa's TCL interpreter and doesn't cross the Bazel action boundary. Bind if a future rule needs a Bazel-visible path.</td><td style="text-align: left"><a href="https://bazel.build/concepts/labels">Label</a></td><td style="text-align: left">optional</td><td style="text-align: left"><code>"@rules_riviera//riviera/private/shims:vmap.sh"</code></td></tr>
-<tr><td style="text-align: left"><a id="riviera_toolchain-vsim"></a>vsim</td><td style="text-align: left">Executable invoked as <code>vsim</code>. Optional — currently runs inside vsimsa's TCL interpreter and doesn't cross the Bazel action boundary. Bind if a future rule needs a Bazel-visible path.</td><td style="text-align: left"><a href="https://bazel.build/concepts/labels">Label</a></td><td style="text-align: left">optional</td><td style="text-align: left"><code>"@rules_riviera//riviera/private/shims:vsim.sh"</code></td></tr>
+<tr><td style="text-align: left"><a id="riviera_toolchain-vmap"></a>vmap</td><td style="text-align: left">Executable invoked as <code>vmap</code>. Optional — no rule in this repo invokes it across the Bazel action boundary. Bind it if your own rules need a Bazel-visible path, or to override the default PATH-resolving shim.</td><td style="text-align: left"><a href="https://bazel.build/concepts/labels">Label</a></td><td style="text-align: left">optional</td><td style="text-align: left"><code>"@rules_riviera//riviera/private/shims:vmap"</code></td></tr>
+<tr><td style="text-align: left"><a id="riviera_toolchain-vsim"></a>vsim</td><td style="text-align: left">Executable invoked as <code>vsim</code>. Optional — no rule in this repo invokes it across the Bazel action boundary. Bind it if your own rules need a Bazel-visible path, or to override the default PATH-resolving shim.</td><td style="text-align: left"><a href="https://bazel.build/concepts/labels">Label</a></td><td style="text-align: left">optional</td><td style="text-align: left"><code>"@rules_riviera//riviera/private/shims:vsim"</code></td></tr>
 <tr><td style="text-align: left"><a id="riviera_toolchain-vsimsa"></a>vsimsa</td><td style="text-align: left">Executable invoked as <code>vsimsa</code>. MANDATORY — the rules call this tool directly.</td><td style="text-align: left"><a href="https://bazel.build/concepts/labels">Label</a></td><td style="text-align: left">required</td><td style="text-align: left"></td></tr>
 </tbody></table>
 </div>

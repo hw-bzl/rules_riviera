@@ -156,11 +156,11 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="rules"><a class="header" href="#rules">Rules</a></h1>
-<p>Three public rules, two providers.</p>
+<p>Three public rules over the providers in <code>//riviera:defs.bzl</code>.</p>
 <div class="table-wrapper"><table><thead><tr><th>Rule</th><th>Produces</th><th>Consumes</th></tr></thead><tbody>
 <tr><td><code>riviera_library</code></td><td><code>RivieraLibraryInfo</code></td><td><code>VerilogInfo</code> / <code>VhdlInfo</code></td></tr>
 <tr><td><code>riviera_sim_test</code></td><td>(a bazel test)</td><td><code>RivieraLibraryInfo</code></td></tr>
-<tr><td><code>riviera_toolchain</code></td><td><code>RivieraToolchainInfo</code></td><td>8 tool executables</td></tr>
+<tr><td><code>riviera_toolchain</code></td><td><code>RivieraToolchainInfo</code> (one <code>RivieraToolInfo</code> per tool)</td><td>one executable per Riviera tool; only <code>vsimsa</code> is mandatory</td></tr>
 </tbody></table>
 </div>
 <p>Anything that produces <code>RivieraLibraryInfo</code> (a pre-built vendor library, an imported UVM archive, etc.) is a drop-in for <code>riviera_sim_test.deps</code> — no sim-rule surgery required.</p>
