@@ -40,6 +40,7 @@ RivieraToolchainInfo = provider(
         "env": "dict[str, str]; extra environment variables for actions.",
         "jobs": "int; default CPU-count hint for Riviera actions/tests. `-1` = no hint (Bazel decides); `0` = explicit no hint; `N > 0` = request N CPUs. Rule-level `jobs = -1` inherits this value.",
         "requires_network": "bool; whether Riviera actions need network access (e.g. FlexLM license server).",
+        "resources": "dict[str, str]; `--local_resources` slots every Riviera action claims, resource name -> per-action count. Each entry becomes `execution_requirements[\"resources:<name>\"] = <count>`.",
         "riviera": "RivieraToolInfo; the interactive Riviera-PRO IDE. No rule in this repo invokes it; bound so a consumer-authored rule can reach the wave viewer / TCL console.",
         "version": "string; toolchain version identifier for diagnostics.",
         "vmap": "RivieraToolInfo; the `vmap` library-mapping tool.",

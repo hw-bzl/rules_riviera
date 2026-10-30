@@ -167,17 +167,17 @@ def include_dirs(headers, includes):
 def riviera_execution_requirements(tc_info, extra = None, jobs = 0):
     """Compose execution_requirements for actions/tests that invoke Riviera tools.
 
-    Precedence (lowest -> highest): defaults, then `jobs`, then `extra`.
-    Defaults are:
+    Precedence (lowest -> highest): toolchain, then `jobs`, then `extra`.
+    From the toolchain:
 
-      - `resources:riviera_license=1` — participates in Bazel's local
-        resource pool so concurrent Riviera actions stay under the
-        configured license count. Users tune with
-        `--local_resources=riviera_license=<N>`.
+      - `resources:<name>=<count>` — one per entry of the toolchain's
+        `resources`, so locally executed actions stay under a budget
+        declared with `--local_resources=<name>=<total>`.
       - `requires-network` — when the toolchain says the licence server
         is remote (FlexLM over the network).
-      - `cpu:N` — when `jobs > 0`, requests N CPU slots. Rules pass the
-        already-resolved value (see `resolve_jobs`).
+
+    `cpu:N` — when `jobs > 0`, requests N CPU slots. Rules pass the
+    already-resolved value (see `resolve_jobs`).
 
     Anything in `extra` overrides these — pass
     `{"resources:riviera_license": "2"}` to bump a specific action's
@@ -193,7 +193,7 @@ def riviera_execution_requirements(tc_info, extra = None, jobs = 0):
         dict[str, str] suitable for passing as `execution_requirements`
         on an action or as `testing.ExecutionInfo(requirements=...)`.
     """
-    reqs = {"resources:riviera_license": "1"}
+    reqs = {"resources:" + name: count for name, count in tc_info.resources.items()}
     if tc_info.requires_network:
         reqs["requires-network"] = ""
     if jobs > 0:

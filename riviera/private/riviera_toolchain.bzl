@@ -29,6 +29,7 @@ def _riviera_toolchain_impl(ctx):
     toolchain_info = RivieraToolchainInfo(
         env = ctx.attr.env,
         requires_network = ctx.attr.requires_network,
+        resources = ctx.attr.resources,
         version = ctx.attr.version,
         jobs = ctx.attr.jobs,
         **tools
@@ -111,6 +112,10 @@ ever need a Bazel-visible path to those binaries.""",
         requires_network = attr.bool(
             doc = "Set True when Riviera actions need network access (FlexLM license server).",
             default = False,
+        ),
+        resources = attr.string_dict(
+            doc = "`--local_resources` slots every Riviera action claims: resource name -> per-action count (as a string). Each entry becomes `execution_requirements[\"resources:<name>\"] = <count>`, so locally executed actions can be held under a budget declared with `--local_resources=<name>=<total>`, typically license seats: `{\"riviera_license\": \"1\"}`. Every name used here needs a matching `--local_resources` registration or local actions fail to schedule. Empty by default, so actions schedule freely.",
+            default = {},
         ),
         version = attr.string(
             doc = "Toolchain version identifier for diagnostics.",
