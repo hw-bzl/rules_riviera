@@ -206,7 +206,7 @@ prints the transcript when the compile fails.""",
             providers = [[VerilogInfo], [VhdlInfo]],
         ),
         "exec_requirements": attr.string_dict(
-            doc = "Extra execution_requirements merged over the defaults (`resources:riviera_license=1`, plus `requires-network` when the toolchain sets it).",
+            doc = "Extra execution_requirements merged over the toolchain's (`resources:<name>` for each of its `resources`, plus `requires-network` when it sets it).",
             default = {},
         ),
         "jobs": attr.int(
