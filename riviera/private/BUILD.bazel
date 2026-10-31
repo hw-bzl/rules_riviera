@@ -7,6 +7,7 @@ bzl_library(
     srcs = glob(["*.bzl"]),
     visibility = ["//riviera:__pkg__"],
     deps = [
+        "@bazel_features//:features",
         "@bazel_skylib//lib:collections",
         "@rules_verilog//verilog:defs_bzl",
         "@rules_vhdl//vhdl:defs_bzl",
