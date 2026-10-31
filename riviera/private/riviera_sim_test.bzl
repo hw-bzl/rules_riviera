@@ -1,5 +1,6 @@
 """The `riviera_sim_test` rule implementation."""
 
+load("@bazel_features//:features.bzl", "bazel_features")
 load(":providers.bzl", "RivieraLibraryInfo")
 load(
     ":utils.bzl",
@@ -12,8 +13,15 @@ load(
     "rlocationpath",
 )
 
+_TEST_EXEC_GROUP_TOOLCHAINS = [config_common.toolchain_type(TOOLCHAIN_TYPE)] + ([
+    config_common.toolchain_type(str(Label("@bazel_tools//tools/test:default_test_toolchain_type"))),
+] if bazel_features.toolchains.has_default_test_toolchain_type else [])
+
 def _riviera_sim_test_impl(ctx):
-    tc = ctx.toolchains[TOOLCHAIN_TYPE].riviera_info
+    # The toolchain is resolved by the `test` exec group (see the rule
+    # definition), so `tc`'s `cfg = "exec"` tools are built for the
+    # platform the test action actually runs on.
+    tc = ctx.exec_groups["test"].toolchains[TOOLCHAIN_TYPE].riviera_info
 
     if not ctx.attr.deps:
         fail("riviera_sim_test {}: `deps` must include at least one riviera_library.".format(ctx.label))
@@ -184,9 +192,31 @@ its `pre_processor`.""",
         "_launcher": attr.label(
             default = Label("//tools/riviera_launcher"),
             executable = True,
-            cfg = "target",
+            # The launcher runs inside the test action, so build it for
+            # the `test` exec group's platform rather than the target
+            # platform.
+            cfg = config.exec("test"),
         ),
     },
-    toolchains = [TOOLCHAIN_TYPE],
+    # Bazel runs the test action in the `test` exec group. Declaring the
+    # toolchain here, instead of on the rule, does two things the
+    # auto-generated `test` group would not: it constrains the test action
+    # to an execution platform the toolchain is compatible with, and it
+    # builds the toolchain's `cfg = "exec"` tools for that same platform.
+    # Riviera is therefore always a property of an *execution* platform —
+    # match toolchains with `exec_compatible_with`, for compile actions and
+    # simulations alike.
+    #
+    # Defining `test` explicitly replaces Bazel's generated group
+    # wholesale, including (on Bazel 9+) its default test toolchain
+    # requirement, so that is re-declared here. It keeps the test action
+    # on an execution platform that also satisfies the target platform's
+    # constraints (the target-configured `pre_processor` /
+    # `post_processor` / `data` run there too), and keeps
+    # `--@bazel_tools//tools/test:incompatible_use_default_test_toolchain`
+    # meaningful for this rule exactly as for any other test rule.
+    exec_groups = {
+        "test": exec_group(toolchains = _TEST_EXEC_GROUP_TOOLCHAINS),
+    },
     test = True,
 )

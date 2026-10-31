@@ -1,0 +1,2 @@
+# Patches applied to external modules from MODULE.bazel.
+exports_files(glob(["*.patch"]))
