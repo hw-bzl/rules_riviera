@@ -2,8 +2,8 @@ bcr_test_module:
   module_path: "examples/simple"
   matrix:
     platform:
-      - "ubuntu2004"
-    bazel: [7.x, 8.x, 9.x]
+      - "ubuntu2204"
+    bazel: [8.x, 9.x]
   tasks:
     run_tests:
       name: "Build example module"

@@ -1,5 +1,6 @@
 """The `riviera_library` rule implementation."""
 
+load("@bazel_features//:features.bzl", "bazel_features")
 load("@rules_verilog//verilog:defs.bzl", "VerilogInfo")
 load("@rules_vhdl//vhdl:defs.bzl", "VhdlInfo")
 load(":providers.bzl", "RivieraLibraryInfo")
@@ -16,6 +17,18 @@ load(
     "riviera_action_env",
     "riviera_execution_requirements",
 )
+
+# Path mapping (`--experimental_output_paths=strip`) is only sound when the
+# generated `.do` script and the compile action that reads it agree: the
+# script embeds source and library paths, so if the compile action is
+# mapped while the script is written unmapped, nothing resolves. The
+# write action can only opt in once `ctx.actions.write` accepts
+# `execution_requirements` (Bazel 9.1), so both opt in together on that
+# condition.
+_SUPPORTS_PATH_MAPPING = bazel_features.rules.write_action_has_execution_requirements
+
+def _path_mapping_requirements():
+    return {"supports-path-mapping": ""} if _SUPPORTS_PATH_MAPPING else {}
 
 def _args_map_verilog_parts(value):
     lib_name, alog_opts, headers, includes, verilog = value
@@ -74,11 +87,17 @@ def _build_do_script(ctx, output, lib_name, library_dir, verilog, vhdl, headers,
     args.add("quit -code 0")
     args.add("")
 
+    # `mnemonic` (Bazel 9.0) and `execution_requirements` (Bazel 9.1) are
+    # newer additions to `ctx.actions.write`; pass each only where it exists.
+    write_kwargs = {}
+    if bazel_features.rules.write_action_has_mnemonic:
+        write_kwargs["mnemonic"] = "RivieraDoScript"
+    if _SUPPORTS_PATH_MAPPING:
+        write_kwargs["execution_requirements"] = _path_mapping_requirements()
     ctx.actions.write(
         output = output,
         content = args,
-        mnemonic = "RivieraDoScript",
-        execution_requirements = {"supports-path-mapping": ""},
+        **write_kwargs
     )
 
     return output
@@ -145,7 +164,7 @@ def _riviera_library_impl(ctx):
         mnemonic = "RivieraCompile",
         progress_message = "RivieraCompile %{label}",
         env = riviera_action_env(ctx, tc),
-        execution_requirements = riviera_execution_requirements(tc, ctx.attr.exec_requirements, jobs) | {"supports-path-mapping": ""},
+        execution_requirements = riviera_execution_requirements(tc, ctx.attr.exec_requirements, jobs) | _path_mapping_requirements(),
         resource_set = cpu_resource_set(jobs),
         toolchain = TOOLCHAIN_TYPE,
     )
