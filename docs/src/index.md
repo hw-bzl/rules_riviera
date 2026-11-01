@@ -52,6 +52,12 @@ toolchain(
     name = "my_riviera_toolchain",
     toolchain = ":my_riviera_toolchain_def",
     toolchain_type = "@rules_riviera//riviera:toolchain_type",
+    # Riviera is a property of an *execution* platform: compile actions
+    # and test actions are both scheduled onto a platform this toolchain
+    # is compatible with. When only some of your execution platforms have
+    # a Riviera install (remote execution, a dedicated license host),
+    # constrain it here — never with `target_compatible_with`.
+    # exec_compatible_with = ["//platforms:has_riviera"],
 )
 ```
 
